@@ -3,6 +3,7 @@ import { useTheme } from './context/ThemeContext'
 import MatrixRain from './components/layout/MatrixRain'
 import ThemeToggle from './components/ui/ThemeToggle'
 import Hero from './components/sections/Hero'
+import About from './components/sections/About'
 
 function App() {
   const { theme } = useTheme()
@@ -22,6 +23,7 @@ function App() {
             element={
               <>
                 <Hero />
+                <About />
               </>
             }
           />
