@@ -2,10 +2,12 @@ import { useRef, useEffect } from 'react'
 
 const CHARS =
   'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-const FONT_SIZE = 14
+const FONT_SIZE = 11
+const COLUMN_SPACING = 22
 const TARGET_FPS = 30
 const FRAME_INTERVAL = 1000 / TARGET_FPS
-const TRAIL_ALPHA = 0.05
+const TRAIL_ALPHA = 0.1
+const CHAR_ALPHA = 0.8
 const BG_COLOR = '#0a0e0a'
 const FG_COLOR = '#00ff41'
 
@@ -33,7 +35,7 @@ export default function MatrixRain({ active = true }) {
     const resize = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
-      const cols = Math.floor(canvas.width / FONT_SIZE)
+      const cols = Math.floor(canvas.width / COLUMN_SPACING)
       const old = columnsRef.current
       columnsRef.current = Array.from({ length: cols }, (_, i) =>
         old[i] !== undefined
@@ -52,9 +54,9 @@ export default function MatrixRain({ active = true }) {
       const columns = columnsRef.current
       for (let i = 0; i < columns.length; i++) {
         const char = CHARS[Math.floor(Math.random() * CHARS.length)]
-        const x = i * FONT_SIZE
+        const x = i * COLUMN_SPACING
         const y = Math.floor(columns[i]) * FONT_SIZE
-        ctx.globalAlpha = 0.3 + Math.random() * 0.7
+        ctx.globalAlpha = CHAR_ALPHA * (0.5 + Math.random() * 0.5)
         ctx.fillStyle = FG_COLOR
         ctx.fillText(char, x, y)
       }
@@ -73,16 +75,18 @@ export default function MatrixRain({ active = true }) {
       if (timestamp - lastFrameRef.current < FRAME_INTERVAL) return
       lastFrameRef.current = timestamp
 
+      ctx.globalAlpha = 1
       ctx.fillStyle = `rgba(10, 14, 10, ${TRAIL_ALPHA})`
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       ctx.font = `${FONT_SIZE}px "JetBrains Mono", monospace`
       ctx.fillStyle = FG_COLOR
+      ctx.globalAlpha = CHAR_ALPHA
 
       const columns = columnsRef.current
       for (let i = 0; i < columns.length; i++) {
         const char = CHARS[Math.floor(Math.random() * CHARS.length)]
-        const x = i * FONT_SIZE
+        const x = i * COLUMN_SPACING
         const y = Math.floor(columns[i]) * FONT_SIZE
 
         ctx.fillText(char, x, y)

@@ -45,7 +45,7 @@ export default function Skills() {
   const muted = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
   const textColor = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
   const barColor = isMatrix ? 'bg-matrix-green' : 'bg-bluepill-accent'
-  const borderColor = isMatrix ? 'border-matrix-green/20' : 'border-bluepill-accent/20'
+  const borderColor = isMatrix ? 'border-matrix-green/30' : 'border-bluepill-accent/30'
   const trackBg = isMatrix ? 'bg-matrix-dim/40' : 'bg-bluepill-accent/10'
 
   const groups = useMemo(() => {

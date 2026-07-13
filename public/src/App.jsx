@@ -9,11 +9,16 @@ import Skills from './components/sections/Skills'
 function App() {
   const { theme } = useTheme()
 
+  const scrimClass =
+    theme === 'matrix'
+      ? 'bg-bg-void/85'
+      : 'bg-gradient-to-b from-bluepill-bg/85 via-bluepill-bg/90 to-bluepill-bg/90'
+
   return (
     <>
       <MatrixRain active={theme === 'matrix'} />
 
-      <div className="relative z-10">
+      <div className={`relative z-10 ${scrimClass}`}>
         <div className="fixed top-4 right-4 z-50">
           <ThemeToggle />
         </div>
