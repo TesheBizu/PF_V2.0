@@ -10,7 +10,11 @@ const BOOT_LINES = [
   'Welcome, visitor.',
 ]
 
-export default function useBootSequence({ lines = BOOT_LINES, delay = 400 } = {}) {
+export default function useBootSequence({
+  lines = BOOT_LINES,
+  delay = 500,
+  finalDelay = 900,
+} = {}) {
   const [shownLines, setShownLines] = useState([])
   const [isBooting, setIsBooting] = useState(true)
   const indexRef = useRef(0)
@@ -33,7 +37,9 @@ export default function useBootSequence({ lines = BOOT_LINES, delay = 400 } = {}
       if (indexRef.current < lines.length) {
         setShownLines((prev) => [...prev, lines[indexRef.current]])
         indexRef.current++
-        timerRef.current = setTimeout(tick, delay)
+
+        const isLastLine = indexRef.current === lines.length
+        timerRef.current = setTimeout(tick, isLastLine ? finalDelay : delay)
       } else {
         try {
           sessionStorage.setItem(STORAGE_KEY, '1')
@@ -48,7 +54,7 @@ export default function useBootSequence({ lines = BOOT_LINES, delay = 400 } = {}
       cancelled = true
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [lines, delay])
+  }, [lines, delay, finalDelay])
 
   const skipBoot = useCallback(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
