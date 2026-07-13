@@ -1,6 +1,11 @@
 import { useTheme } from '../../context/ThemeContext'
 
-export default function TerminalWindow({ title = 'terminal', children, className = '' }) {
+export default function TerminalWindow({
+  title = 'terminal',
+  children,
+  className = '',
+  interactive = false,
+}) {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
 
@@ -12,9 +17,16 @@ export default function TerminalWindow({ title = 'terminal', children, className
     : 'border-bluepill-accent/20 bg-bluepill-bg'
   const titleText = isMatrix ? 'text-matrix-green/50' : 'text-bluepill-accent-dark'
 
+  const frameHover = interactive
+    ? isMatrix
+      ? 'group-hover:border-matrix-green/60'
+      : 'group-hover:border-bluepill-accent/60'
+    : ''
+  const transition = interactive ? 'transition-colors duration-300' : ''
+
   return (
     <div
-      className={`w-full max-w-2xl overflow-hidden rounded-lg border font-mono text-sm backdrop-blur-sm ${frame} ${className}`}
+      className={`w-full max-w-2xl overflow-hidden rounded-lg border font-mono text-sm backdrop-blur-sm ${frame} ${transition} ${frameHover} ${className}`}
     >
       <div className={`flex items-center gap-2 border-b px-4 py-2.5 ${titleBar}`}>
         <span className="h-3 w-3 rounded-full bg-alert" />
