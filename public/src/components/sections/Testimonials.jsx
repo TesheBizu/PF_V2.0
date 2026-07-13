@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { motion, useInView, useReducedMotion } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 import { LinkedInIcon } from '../ui/icons'
 
@@ -56,14 +56,114 @@ const TESTIMONIALS = [
   },
 ]
 
+const AUTOPLAY_MS = 2000
+
+const n = TESTIMONIALS.length
+// Cloned ends enable seamless infinite looping: [last, ...all, first]
+const LOOP = [TESTIMONIALS[n - 1], ...TESTIMONIALS, TESTIMONIALS[0]]
+
 export default function Testimonials() {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
   const reduce = useReducedMotion()
 
+  const sectionRef = useRef(null)
   const trackRef = useRef(null)
   const cardRef = useRef(null)
-  const [active, setActive] = useState(0)
+
+  // Single source of truth: index into LOOP (1..n are the real cards, 0 and n+1 are clones)
+  const [index, setIndex] = useState(1)
+  const [cardW, setCardW] = useState(0)
+  const [gap, setGap] = useState(16)
+  const [animate, setAnimate] = useState(true)
+
+  const pausedRef = useRef(false)
+  const resumeTimer = useRef(null)
+  const inView = useInView(sectionRef, { amount: 0.3 })
+
+  // Real card index shown (0..n-1) for dots / aria
+  const active = ((index - 1) % n + n) % n
+
+  // Measure card width + gap so the translate is exact at every breakpoint
+  useLayoutEffect(() => {
+    const measure = () => {
+      const track = trackRef.current
+      const card = cardRef.current
+      if (!track || !card) return
+      const g =
+        parseInt(
+          getComputedStyle(track).columnGap ||
+            getComputedStyle(track).gap ||
+            '16',
+          10,
+        ) || 16
+      setCardW(card.offsetWidth)
+      setGap(g)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [])
+
+  const step = cardW + gap
+  const offset = -index * step
+
+  // Navigation: the ONLY way index changes. Functional update => no stale closures.
+  // Clamped to the cloned range so rapid clicks can't overshoot past the ends.
+  const go = useCallback((dir) => {
+    setAnimate(true)
+    setIndex((prev) => {
+      const next = prev + dir
+      if (next > n + 1) return n + 1
+      if (next < 0) return 0
+      return next
+    })
+  }, [])
+
+  const goRef = useRef(go)
+  useEffect(() => {
+    goRef.current = go
+  }, [go])
+
+  // Seamless wrap: once we land on a clone, jump back to the real card with no animation.
+  // Driven by an effect (not transitionend) so it also works under reduced motion.
+  useEffect(() => {
+    if (index !== n + 1 && index !== 0) return
+    const t = setTimeout(
+      () => {
+        setAnimate(false)
+        setIndex(index === n + 1 ? 1 : n)
+      },
+      reduce ? 0 : 460,
+    )
+    return () => clearTimeout(t)
+  }, [index, reduce])
+
+  // Dots jump straight to a real card (LOOP position = i + 1)
+  const jumpTo = useCallback((i) => {
+    setAnimate(true)
+    setIndex(i + 1)
+  }, [])
+
+  // Auto-advance every AUTOPLAY_MS, paused on hover / touch-drag / off-screen
+  useEffect(() => {
+    if (reduce) return
+    const id = setInterval(() => {
+      if (pausedRef.current || !inView) return
+      goRef.current(1)
+    }, AUTOPLAY_MS)
+    return () => clearInterval(id)
+  }, [reduce, inView])
+
+  const pause = useCallback(() => {
+    pausedRef.current = true
+  }, [])
+  const resumeSoon = useCallback(() => {
+    clearTimeout(resumeTimer.current)
+    resumeTimer.current = setTimeout(() => {
+      pausedRef.current = false
+    }, 4000)
+  }, [])
 
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
@@ -88,35 +188,16 @@ export default function Testimonials() {
     ? 'text-matrix-green/70 hover:text-matrix-green'
     : 'text-bluepill-accent-dark/70 hover:text-bluepill-accent-dark'
 
-  const step = () => {
-    const track = trackRef.current
-    const card = cardRef.current
-    if (!track || !card) return 320
-    const gap = parseInt(getComputedStyle(track).columnGap || '16', 10) || 16
-    return card.offsetWidth + gap
-  }
-
-  const scrollToIndex = (i) => {
-    const track = trackRef.current
-    if (!track) return
-    const clamped = Math.max(0, Math.min(i, TESTIMONIALS.length - 1))
-    track.scrollTo({ left: clamped * step(), behavior: 'smooth' })
-    setActive(clamped)
-  }
-
-  const onScroll = () => {
-    const track = trackRef.current
-    if (!track) return
-    const s = step()
-    if (s <= 0) return
-    setActive(Math.round(track.scrollLeft / s))
-  }
-
-  const atStart = active <= 0
-  const atEnd = active >= TESTIMONIALS.length - 1
-
   return (
-    <section id="testimonials" className="px-6 py-24">
+    <section
+      ref={sectionRef}
+      id="testimonials"
+      className="px-6 py-24"
+      onMouseEnter={pause}
+      onMouseLeave={() => {
+        pausedRef.current = false
+      }}
+    >
       <div className="mx-auto max-w-5xl">
         <h2 className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}>
           <span className={accent}>&gt;</span> cat testimonials.log
@@ -125,86 +206,112 @@ export default function Testimonials() {
           <span className="opacity-60">$</span> decrypting peer reviews...
         </p>
 
-        <div className="relative">
+        <div
+          className="relative"
+          onTouchStart={() => {
+            pause()
+            resumeSoon()
+          }}
+          onMouseDown={() => {
+            pause()
+            resumeSoon()
+          }}
+          onWheel={() => {
+            pause()
+            resumeSoon()
+          }}
+        >
           {/* navigation arrows */}
           <div className="mb-4 flex items-center justify-end gap-2">
             <button
               type="button"
-              onClick={() => scrollToIndex(active - 1)}
-              disabled={atStart}
+              onClick={() => go(-1)}
               aria-label="Previous testimonial"
-              className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none disabled:opacity-30 ${arrowBtn}`}
+              className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
             >
               &lt;
             </button>
             <button
               type="button"
-              onClick={() => scrollToIndex(active + 1)}
-              disabled={atEnd}
+              onClick={() => go(1)}
               aria-label="Next testimonial"
-              className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none disabled:opacity-30 ${arrowBtn}`}
+              className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
             >
               &gt;
             </button>
           </div>
 
-          <div
-            ref={trackRef}
-            onScroll={onScroll}
-            className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {TESTIMONIALS.map((t) => (
-              <article
-                key={t.id}
-                ref={TESTIMONIALS[0].id === t.id ? cardRef : undefined}
-                className={`flex w-[85%] shrink-0 snap-start flex-col rounded-lg border p-6 font-mono backdrop-blur-sm sm:w-[60%] lg:w-[33.333%] ${cardBox}`}
-              >
-                <span
-                  className={`mb-3 block text-4xl leading-none ${markColor}`}
-                  aria-hidden="true"
-                >
-                  &ldquo;
-                </span>
-
-                <motion.blockquote
-                  initial={reduce ? { opacity: 1 } : { opacity: 0, filter: 'blur(6px)' }}
-                  whileInView={reduce ? {} : { opacity: 1, filter: 'blur(0px)' }}
-                  viewport={{ once: true, amount: 0.6 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                  className={`flex-1 text-sm leading-relaxed ${quoteColor}`}
-                >
-                  {t.quote}
-                </motion.blockquote>
-
-                <div className="mt-5 flex items-center gap-3">
-                  <img
-                    src={t.photo}
-                    alt={t.name}
-                    className={`h-12 w-12 shrink-0 rounded-full border-2 object-cover ${ring}`}
-                  />
-                  <div className="min-w-0">
-                    <p className={`truncate text-sm font-semibold ${nameColor}`}>
-                      {t.name}
-                    </p>
-                    <p className={`truncate text-xs ${roleColor}`}>
-                      {t.role}
-                      {t.company ? ` @ ${t.company}` : ''}
-                    </p>
-                  </div>
-                  {t.linkedinUrl && (
-                    <a
-                      href={t.linkedinUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`${t.name} on LinkedIn`}
-                      className={`ml-auto inline-flex rounded p-1.5 ${linkBtn}`}
+          {/* viewport: strictly clips the row to the section width */}
+          <div className="overflow-hidden">
+            <div
+              ref={trackRef}
+              className="flex flex-nowrap gap-4 will-change-transform"
+              style={{
+                transform: `translateX(${offset}px)`,
+                transition: animate && !reduce ? 'transform 450ms ease' : 'none',
+              }}
+            >
+              {LOOP.map((t, idx) => {
+                const fullText = `${t.role}${t.company ? ` @ ${t.company}` : ''}`
+                return (
+                  <article
+                    key={`${t.id}-${idx}`}
+                    ref={idx === 0 ? cardRef : undefined}
+                    className={`flex w-full shrink-0 flex-col rounded-lg border p-6 font-mono backdrop-blur-sm sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] ${cardBox}`}
+                  >
+                    <span
+                      className={`mb-3 block text-4xl leading-none ${markColor}`}
+                      aria-hidden="true"
                     >
-                      <LinkedInIcon />
-                    </a>
-                  )}
-                </div>
-              </article>
-            ))}
+                      &ldquo;
+                    </span>
+
+                    <motion.blockquote
+                      initial={reduce ? { opacity: 1 } : { opacity: 0, filter: 'blur(6px)' }}
+                      whileInView={reduce ? {} : { opacity: 1, filter: 'blur(0px)' }}
+                      viewport={{ once: true, amount: 0.6 }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                      className={`flex-1 text-sm leading-relaxed ${quoteColor}`}
+                    >
+                      {t.quote}
+                    </motion.blockquote>
+
+                    <div className="mt-5 flex items-center gap-3">
+                      <img
+                        src={t.photo}
+                        alt={t.name}
+                        className={`h-12 w-12 shrink-0 rounded-full border-2 object-cover ${ring}`}
+                      />
+                      <div className="min-w-0">
+                        <p
+                          className={`truncate text-sm font-semibold ${nameColor}`}
+                          title={t.name}
+                        >
+                          {t.name}
+                        </p>
+                        <p
+                          className={`truncate text-xs ${roleColor}`}
+                          title={fullText}
+                        >
+                          {fullText}
+                        </p>
+                      </div>
+                      {t.linkedinUrl && (
+                        <a
+                          href={t.linkedinUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`${t.name} on LinkedIn`}
+                          className={`ml-auto inline-flex rounded p-1.5 ${linkBtn}`}
+                        >
+                          <LinkedInIcon />
+                        </a>
+                      )}
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
           </div>
 
           {/* dot / line indicators */}
@@ -213,7 +320,7 @@ export default function Testimonials() {
               <button
                 key={t.id}
                 type="button"
-                onClick={() => scrollToIndex(i)}
+                onClick={() => jumpTo(i)}
                 aria-label={`Go to testimonial ${i + 1}`}
                 aria-current={active === i ? 'true' : undefined}
                 className={`h-2 rounded-full transition-all duration-300 ${
