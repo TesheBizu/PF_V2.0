@@ -35,7 +35,7 @@ export default function About() {
 
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent/60'
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
-  const bioText = isMatrix ? 'text-text-primary' : 'text-[#1a1a2e]'
+  const bioText = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
 
   // Avatar / photo-frame styling (CSS-only glitch + scanlines)
   const bracket = isMatrix ? 'border-matrix-green' : 'border-bluepill-accent'
@@ -45,6 +45,7 @@ export default function About() {
     : 'group-hover:shadow-[0_0_20px_var(--color-bluepill-accent)]'
   const glitch = 'group-hover:[animation:glitch-shift_0.4s_steps(2,end)_infinite]'
   const initialsColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
+  const avatarBg = isMatrix ? 'bg-matrix-dim/30' : 'bg-bluepill-bg/40'
   const rgbSplit =
     'group-hover:[text-shadow:2px_0_var(--color-alert),-2px_0_var(--color-bluepill-accent)]'
   const scanClass = isMatrix
@@ -73,7 +74,7 @@ export default function About() {
               className={`relative h-56 w-56 overflow-hidden border-2 transition-shadow duration-300 sm:h-64 sm:w-64 ${photoBorder} ${glow} ${glitch}`}
             >
               <div
-                className={`flex h-full w-full items-center justify-center bg-matrix-dim/30 font-data text-6xl font-bold ${initialsColor} ${rgbSplit}`}
+                className={`flex h-full w-full items-center justify-center font-data text-6xl font-bold ${initialsColor} ${avatarBg} ${rgbSplit}`}
               >
                 JD
               </div>
@@ -142,8 +143,8 @@ function StatBlock({ value, label, suffix = '', isMatrix, reduce }) {
   }, [inView, value, reduce])
 
   const numColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
-  const labelColor = isMatrix ? 'text-text-primary/60' : 'text-[#1a1a2e]/60'
-  const boxBg = isMatrix ? 'border-matrix-green/20 bg-bg-void/50' : 'border-bluepill-accent/20 bg-white/60'
+  const labelColor = isMatrix ? 'text-text-primary/60' : 'text-bluepill-text/60'
+  const boxBg = isMatrix ? 'border-matrix-green/20 bg-bg-void/50' : 'border-bluepill-accent/20 bg-bluepill-bg/60'
 
   return (
     <div

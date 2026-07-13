@@ -52,8 +52,8 @@ export default function Hero() {
 
 function BootScreen({ lines, isMatrix }) {
   const promptColor = isMatrix ? 'text-matrix-green/50' : 'text-bluepill-accent/50'
-  const lineColor = isMatrix ? 'text-text-primary' : 'text-[#1a1a2e]'
-  const hintColor = isMatrix ? 'text-text-primary/40' : 'text-[#1a1a2e]/40'
+  const lineColor = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
+  const hintColor = isMatrix ? 'text-text-primary/40' : 'text-bluepill-text/40'
 
   return (
     <TerminalWindow title="boot_sequence" className="w-full max-w-2xl">
@@ -75,7 +75,7 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
   const base = shouldReduceMotion ? { duration: 0 } : { duration: 0.5, ease: 'easeOut' }
 
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
-  const textColor = isMatrix ? 'text-text-primary' : 'text-[#1a1a2e]'
+  const textColor = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
   const accentColor = isMatrix ? 'text-matrix-green/50' : 'text-bluepill-accent/50'
   const border = isMatrix ? 'border-matrix-green/30' : 'border-bluepill-accent/30'
   const hoverBg = isMatrix ? 'hover:bg-matrix-green/10' : 'hover:bg-bluepill-accent/10'
