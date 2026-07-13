@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-void: #0a0e0a;
+  --color-matrix-green: #00ff41;
+  --color-matrix-dim: #003b00;
+  --color-text-primary: #c8ffc8;
+  --color-alert: #ff2e2e;
+  --color-bluepill-bg: #f4f6fa;
+  --color-bluepill-accent: #2563eb;
+
+  --font-mono: "JetBrains Mono", monospace;
+  --font-sans: "Inter", sans-serif;
+  --font-data: "Space Mono", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg-void);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html.bluepill body {
+  background-color: var(--color-bluepill-bg);
+  color: #1a1a2e;
+}
+
+::selection {
+  background-color: var(--color-matrix-green);
+  color: var(--color-bg-void);
+}
+
+html.bluepill ::selection {
+  background-color: var(--color-bluepill-accent);
+  color: white;
+}
