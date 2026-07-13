@@ -35,7 +35,8 @@ export default function useBootSequence({
       if (cancelled) return
 
       if (indexRef.current < lines.length) {
-        setShownLines((prev) => [...prev, lines[indexRef.current]])
+        const currentIndex = indexRef.current
+        setShownLines((prev) => [...prev, lines[currentIndex]])
         indexRef.current++
 
         const isLastLine = indexRef.current === lines.length
