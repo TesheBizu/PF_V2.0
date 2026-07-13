@@ -4,6 +4,7 @@ import MatrixRain from './components/layout/MatrixRain'
 import ThemeToggle from './components/ui/ThemeToggle'
 import Hero from './components/sections/Hero'
 import About from './components/sections/About'
+import Skills from './components/sections/Skills'
 
 function App() {
   const { theme } = useTheme()
@@ -24,6 +25,7 @@ function App() {
               <>
                 <Hero />
                 <About />
+                <Skills />
               </>
             }
           />

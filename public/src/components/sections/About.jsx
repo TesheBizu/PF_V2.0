@@ -33,7 +33,7 @@ export default function About() {
     show: { opacity: 1, y: 0, transition: { duration: reduce ? 0 : 0.4 } },
   }
 
-  const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent/60'
+  const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const bioText = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
 

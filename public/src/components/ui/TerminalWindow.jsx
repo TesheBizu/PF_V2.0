@@ -10,7 +10,7 @@ export default function TerminalWindow({ title = 'terminal', children, className
   const titleBar = isMatrix
     ? 'border-matrix-green/20 bg-matrix-dim/30'
     : 'border-bluepill-accent/20 bg-bluepill-bg'
-  const titleText = isMatrix ? 'text-matrix-green/50' : 'text-bluepill-accent/50'
+  const titleText = isMatrix ? 'text-matrix-green/50' : 'text-bluepill-accent-dark'
 
   return (
     <div
