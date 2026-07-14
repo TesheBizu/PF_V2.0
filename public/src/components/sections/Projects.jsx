@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { useTheme } from '../../context/ThemeContext'
 import TerminalWindow from '../ui/TerminalWindow'
 import ProjectModal from '../ui/ProjectModal'
+import TerminalReveal from '../ui/TerminalReveal'
 import { GitHubIcon, ExternalLinkIcon } from '../ui/icons'
 
 const PROJECTS = [
@@ -95,7 +96,8 @@ export default function Projects() {
         <h2
           className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}
         >
-          <span className={accent}>&gt;</span> ls projects/
+          <span className={accent}>&gt;</span>{' '}
+          <TerminalReveal mode="type" text="ls projects/" as="span" />
         </h2>
         <p className={`mb-12 font-mono text-sm ${muted}`}>
           <span className="opacity-60">$</span> listing repositories...
@@ -150,11 +152,12 @@ export default function Projects() {
                         ))}
                       </div>
 
-                      <p
-                        className={`line-clamp-3 text-xs leading-relaxed ${cardBody}`}
-                      >
-                        {project.description}
-                      </p>
+                      <TerminalReveal
+                        mode="lines"
+                        as="div"
+                        lines={[project.description]}
+                        lineClassName={`line-clamp-3 text-xs leading-relaxed ${cardBody}`}
+                      />
                     </div>
                   </TerminalWindow>
                 </div>

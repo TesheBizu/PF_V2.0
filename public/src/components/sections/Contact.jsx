@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTheme } from '../../context/ThemeContext'
 import api from '../../lib/api'
+import TerminalReveal from '../ui/TerminalReveal'
 import { GitHubIcon, LinkedInIcon, TwitterIcon } from '../ui/icons'
 
 const schema = z.object({
@@ -86,7 +87,8 @@ export default function Contact() {
     <section id="contact" className="px-6 py-24">
       <div className="mx-auto max-w-5xl">
         <h2 className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}>
-          <span className={accent}>&gt;</span> send_message.sh
+          <span className={accent}>&gt;</span>{' '}
+          <TerminalReveal mode="type" text="send_message.sh" as="span" />
         </h2>
         <p className={`mb-12 font-mono text-sm ${muted}`}>
           <span className="opacity-60">$</span> initializing secure channel...

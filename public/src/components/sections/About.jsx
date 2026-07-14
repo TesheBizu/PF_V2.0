@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect } from 'react'
-import { motion, useInView, useReducedMotion, animate } from 'framer-motion'
+import { animate, useInView, useReducedMotion } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 import TerminalWindow from '../ui/TerminalWindow'
+import TerminalReveal from '../ui/TerminalReveal'
 
 const BIO = [
   'I am a full-stack developer who builds fast, accessible web applications with the MERN stack.',
@@ -20,18 +21,6 @@ export default function About() {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
   const reduce = useReducedMotion()
-
-  const sectionRef = useRef(null)
-  const inView = useInView(sectionRef, { once: true, amount: 0.2 })
-
-  const container = {
-    hidden: {},
-    show: { transition: { staggerChildren: reduce ? 0 : 0.35, delayChildren: reduce ? 0 : 0.2 } },
-  }
-  const lineVariant = {
-    hidden: { opacity: 0, y: 8 },
-    show: { opacity: 1, y: 0, transition: { duration: reduce ? 0 : 0.4 } },
-  }
 
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
@@ -56,10 +45,11 @@ export default function About() {
     : 'bg-[linear-gradient(to_bottom,transparent,var(--color-bluepill-accent),transparent)]'
 
   return (
-    <section ref={sectionRef} id='about' className='px-6 py-24'>
+    <section id='about' className='px-6 py-24'>
       <div className='mx-auto max-w-5xl'>
         <h2 className={`mb-12 font-mono text-2xl sm:text-3xl ${headingColor}`}>
-          <span className={accent}>&gt;</span> about
+          <span className={accent}>&gt;</span>{' '}
+          <TerminalReveal mode='type' text='about' as='span' />
         </h2>
 
         <div className='flex flex-col items-center gap-10 md:flex-row md:items-start md:gap-14'>
@@ -90,24 +80,14 @@ export default function About() {
           {/* Bio terminal */}
           <div className='w-full flex-1'>
             <TerminalWindow title='about.txt' className='w-full'>
-              <motion.div
-                variants={container}
-                initial='hidden'
-                animate={inView ? 'show' : 'hidden'}
-              >
-                <motion.div variants={lineVariant} className={`font-mono text-sm ${accent}`}>
-                  <span className='opacity-70'>$</span> cat about.txt
-                </motion.div>
-                {BIO.map((para, i) => (
-                  <motion.p
-                    key={i}
-                    variants={lineVariant}
-                    className={`mt-3 font-sans text-sm leading-relaxed ${bioText}`}
-                  >
-                    {para}
-                  </motion.p>
-                ))}
-              </motion.div>
+              <div className={`font-mono text-sm ${accent}`}>
+                <span className='opacity-70'>$</span> cat about.txt
+              </div>
+              <TerminalReveal
+                mode='lines'
+                lines={BIO}
+                lineClassName={`mt-3 font-sans text-sm leading-relaxed ${bioText}`}
+              />
             </TerminalWindow>
           </div>
         </div>

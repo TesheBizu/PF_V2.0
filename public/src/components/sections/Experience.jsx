@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
+import TerminalReveal from '../ui/TerminalReveal'
 
 const EXPERIENCE = [
   {
@@ -94,7 +95,8 @@ export default function Experience() {
     <section id="experience" className="px-6 py-24">
       <div className="mx-auto max-w-5xl">
         <h2 className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}>
-          <span className={accent}>&gt;</span> git log --experience
+          <span className={accent}>&gt;</span>{' '}
+          <TerminalReveal mode="type" text="git log --experience" as="span" />
         </h2>
         <p className={`mb-14 font-mono text-sm ${muted}`}>
           <span className="opacity-60">$</span> showing commit history...
@@ -166,20 +168,28 @@ export default function Experience() {
                     </div>
 
                     <p className={`text-sm font-semibold ${msgText}`}>
-                      feat: {item.role} @ {item.company}
+                      <TerminalReveal
+                        mode="type"
+                        text={`feat: ${item.role} @ ${item.company}`}
+                        as="span"
+                      />
                     </p>
                     <p className={`mb-3 mt-0.5 text-xs ${dateText}`}>
                       {dateRange}
                     </p>
 
-                    <ul className={`space-y-1 text-xs leading-relaxed ${bodyText}`}>
-                      {item.description.map((point, i) => (
-                        <li key={i} className="flex gap-2">
+                    <TerminalReveal
+                      mode="lines"
+                      as="ul"
+                      className={`space-y-1 text-xs leading-relaxed ${bodyText}`}
+                      lineClassName="flex gap-2"
+                      lines={item.description.map((point) => (
+                        <>
                           <span className="select-none opacity-60">-</span>
                           <span>{point}</span>
-                        </li>
+                        </>
                       ))}
-                    </ul>
+                    />
                   </div>
                 </motion.div>
               )

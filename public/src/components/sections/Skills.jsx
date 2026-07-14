@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useMemo } from 'react'
 import { motion, useInView, useReducedMotion, animate } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
+import TerminalReveal from '../ui/TerminalReveal'
 
 const SKILLS = [
   // Frontend
@@ -62,7 +63,8 @@ export default function Skills() {
     <section ref={sectionRef} id='skills' className='px-6 py-24'>
       <div className='mx-auto max-w-5xl'>
         <h2 className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}>
-          <span className={accent}>&gt;</span> scanning_skills.exe
+          <span className={accent}>&gt;</span>{' '}
+          <TerminalReveal mode="type" text="scanning_skills.exe" as="span" />
         </h2>
         <p className={`mb-12 font-mono text-sm ${muted}`}>
           <span className='opacity-60'>$</span> initializing skill matrix...
@@ -72,7 +74,8 @@ export default function Skills() {
           {groups.map((group) => (
             <div key={group.category}>
               <h3 className={`mb-4 font-mono text-lg ${subColor}`}>
-                <span className='opacity-60'>$</span> {group.category}
+                <span className='opacity-60'>$</span>{' '}
+                <TerminalReveal mode="type" text={group.category} as="span" />
               </h3>
               <div className='grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4'>
                 {group.items.map((skill, i) => {
