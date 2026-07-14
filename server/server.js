@@ -3,6 +3,7 @@ import cors from 'cors'
 import helmet from 'helmet'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
+import contactRouter from './routes/contact.js'
 
 dotenv.config()
 
@@ -32,6 +33,8 @@ app.use(express.json({ limit: '10mb' }))
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use('/api/contact', contactRouter)
 
 const start = async () => {
   try {
