@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { useTheme } from './context/ThemeContext'
 import MatrixRain from './components/layout/MatrixRain'
-import ThemeToggle from './components/ui/ThemeToggle'
+import Navbar from './components/layout/Navbar'
 import Hero from './components/sections/Hero'
 import About from './components/sections/About'
 import Skills from './components/sections/Skills'
@@ -23,11 +23,9 @@ function App() {
     <>
       <MatrixRain active={theme === 'matrix'} />
 
-      <div className={`relative z-10 ${scrimClass}`}>
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle />
-        </div>
+      <Navbar />
 
+      <div className={`relative z-10 ${scrimClass}`}>
         <Routes>
           <Route
             path="/"

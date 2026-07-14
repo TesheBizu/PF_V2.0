@@ -6,39 +6,50 @@ export default function ThemeToggle() {
   const isMatrix = theme === 'matrix'
   const shouldReduceMotion = useReducedMotion()
 
+  const borderCls = isMatrix ? 'border-matrix-green/40' : 'border-bluepill-accent/40'
+  const matrixLabelCls = isMatrix ? 'text-matrix-green font-bold' : 'text-text-primary/40'
+  const bluepillLabelCls = isMatrix
+    ? 'text-bluepill-text/40'
+    : 'text-bluepill-accent font-bold'
+  const indicatorCls = isMatrix ? 'bg-matrix-green/15' : 'bg-bluepill-accent/15'
+  const tooltipCls = isMatrix
+    ? 'bg-bg-void/90 text-text-primary/70'
+    : 'bg-bluepill-bg/90 text-bluepill-text/70'
+
   return (
-    <div className="flex flex-col items-end gap-2">
-      <span className="text-xs font-mono text-matrix-green/60 select-none">
+    <span className="group relative inline-flex">
+      {/* flavor text demoted to a hover/focus tooltip to save navbar space */}
+      <span
+        role="tooltip"
+        className={`pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded px-2 py-0.5 font-mono text-[10px] opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 ${tooltipCls}`}
+      >
         &gt; choose your reality
       </span>
 
-      <div className="flex items-center gap-3">
-        <span className="inline-block h-2.5 w-2.5 rounded-full bg-alert shadow-[0_0_8px_#ff2e2e]" />
-
-        <button
-          type="button"
-          role="switch"
-          aria-checked={isMatrix}
-          aria-label={`Current theme: ${theme}. Toggle to ${isMatrix ? 'bluepill' : 'matrix'} theme.`}
-          onClick={toggleTheme}
-          className={`relative h-8 w-20 rounded-full border border-matrix-green/30 bg-bg-void p-1 hover:border-matrix-green/50 focus:outline-none focus:ring-2 focus:ring-matrix-green/50 focus:ring-offset-2 focus:ring-offset-bg-void ${
-            shouldReduceMotion ? '' : 'transition-colors duration-200'
-          }`}
-        >
-          <motion.span
-            className="absolute top-1 left-1 block h-6 w-8 rounded-full"
-            animate={{ x: isMatrix ? 0 : 40 }}
-            transition={
-              shouldReduceMotion
-                ? { duration: 0 }
-                : { type: 'spring', stiffness: 500, damping: 30 }
-            }
-            style={{ background: isMatrix ? '#ff2e2e' : '#2563eb' }}
-          />
-        </button>
-
-        <span className="inline-block h-2.5 w-2.5 rounded-full bg-bluepill-accent shadow-[0_0_8px_#2563eb]" />
-      </div>
-    </div>
+      <button
+        type="button"
+        role="switch"
+        aria-pressed={isMatrix}
+        aria-label={`Theme: ${isMatrix ? 'matrix' : 'bluepill'}. Activate ${
+          isMatrix ? 'bluepill' : 'matrix'
+        } theme.`}
+        onClick={toggleTheme}
+        className={`relative inline-flex items-center gap-1 rounded border px-2 py-1 font-mono text-xs ${borderCls}`}
+      >
+        {/* sliding indicator between the two labels */}
+        <motion.span
+          aria-hidden="true"
+          className={`absolute inset-y-0.5 left-0.5 w-[calc(50%-2px)] rounded ${indicatorCls}`}
+          animate={{ x: isMatrix ? '0%' : '100%' }}
+          transition={
+            shouldReduceMotion
+              ? { duration: 0 }
+              : { type: 'spring', stiffness: 500, damping: 35 }
+          }
+        />
+        <span className={`relative z-10 ${matrixLabelCls}`}>matrix</span>
+        <span className={`relative z-10 ${bluepillLabelCls}`}>bluepill</span>
+      </button>
+    </span>
   )
 }
