@@ -53,7 +53,7 @@ router.post('/', contactLimiter, async (req, res) => {
         `,
       })
     } catch (emailErr) {
-      console.error('Contact notification email failed:', emailErr.message)
+      console.error('Email send failed:', emailErr)
     }
 
     return res.status(201).json({ message: 'Message received', id: saved._id })
