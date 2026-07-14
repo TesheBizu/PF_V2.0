@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import contactRouter from './routes/contact.js'
+import githubRouter from './routes/github.js'
 
 dotenv.config()
 
@@ -35,6 +36,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api/contact', contactRouter)
+app.use('/api/github', githubRouter)
 
 const start = async () => {
   try {

@@ -6,6 +6,7 @@ import InteractiveTerminal from './components/terminal/InteractiveTerminal'
 import Hero from './components/sections/Hero'
 import About from './components/sections/About'
 import Skills from './components/sections/Skills'
+import GithubActivity from './components/sections/GithubActivity'
 import Projects from './components/sections/Projects'
 import Experience from './components/sections/Experience'
 import Testimonials from './components/sections/Testimonials'
@@ -37,6 +38,7 @@ function App() {
                 <Hero />
                 <About />
                 <Skills />
+                <GithubActivity />
                 <Projects />
                 <Experience />
                 <Testimonials />
