@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import { useTheme } from './context/ThemeContext'
 import MatrixRain from './components/layout/MatrixRain'
 import Navbar from './components/layout/Navbar'
+import InteractiveTerminal from './components/terminal/InteractiveTerminal'
 import Hero from './components/sections/Hero'
 import About from './components/sections/About'
 import Skills from './components/sections/Skills'
@@ -24,6 +25,8 @@ function App() {
       <MatrixRain active={theme === 'matrix'} />
 
       <Navbar />
+
+      <InteractiveTerminal />
 
       <div className={`relative z-10 ${scrimClass}`}>
         <Routes>
