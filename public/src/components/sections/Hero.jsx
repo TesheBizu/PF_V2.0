@@ -36,7 +36,7 @@ export default function Hero() {
   }, [isBooting, skipBoot])
 
   return (
-    <section className="flex min-h-screen items-center justify-center px-6">
+    <section id="home" className="flex min-h-screen items-center justify-center px-6">
       {isBooting ? (
         <BootScreen lines={lines} isMatrix={isMatrix} />
       ) : (
