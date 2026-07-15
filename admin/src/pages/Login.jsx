@@ -53,7 +53,7 @@ export default function Login() {
         navigate('/verify-2fa', { state: { pendingToken: data.token }, replace: true })
       } else {
         setAuthToken(data.token)
-        navigate('/dashboard', { replace: true })
+        navigate('/admin/dashboard', { replace: true })
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Please try again.'

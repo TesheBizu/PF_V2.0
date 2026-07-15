@@ -25,7 +25,7 @@ export default function TwoFactorVerify() {
     try {
       const res = await api.post('/auth/2fa/verify', { token: pendingToken, code })
       setAuthToken(res.data.token)
-      navigate('/dashboard', { replace: true })
+      navigate('/admin/dashboard', { replace: true })
     } catch (err) {
       const msg = err.response?.data?.message || 'Verification failed. Please try again.'
       setError(msg)

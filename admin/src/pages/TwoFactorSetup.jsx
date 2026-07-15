@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import api from '../lib/api'
 
 export default function TwoFactorSetup() {
   const { token } = useAuth()
+  const { theme } = useTheme()
+  const isMatrix = theme === 'matrix'
   const [qrCode, setQrCode] = useState(null)
   const [secret, setSecret] = useState(null)
   const [code, setCode] = useState('')
@@ -59,15 +62,27 @@ export default function TwoFactorSetup() {
 
   if (!token) return null
 
+  const headingCls = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
+  const subtextCls = isMatrix ? 'text-matrix-dim' : 'text-gray-500'
+  const infoBoxCls = isMatrix
+    ? 'border-matrix-green/20 bg-bg-void'
+    : 'border-gray-200 bg-white'
+  const inputCls = isMatrix
+    ? 'border-matrix-green/20 bg-bg-void text-matrix-green placeholder:text-matrix-dim/50 focus:border-matrix-green/50'
+    : 'border-gray-200 bg-white text-bluepill-text placeholder:text-gray-400 focus:border-bluepill-accent/50'
+  const submitCls = isMatrix
+    ? 'border-matrix-green/40 bg-matrix-green/10 text-matrix-green hover:bg-matrix-green/20'
+    : 'border-bluepill-accent/40 bg-bluepill-accent/10 text-bluepill-accent hover:bg-bluepill-accent/20'
+
   return (
-    <div className="mx-auto max-w-lg p-6">
-      <h2 className="mb-2 font-mono text-lg text-matrix-green">2FA Setup</h2>
-      <p className="mb-6 font-mono text-xs text-matrix-dim">
+    <div className="mx-auto max-w-lg">
+      <h2 className={`mb-2 font-mono text-lg ${headingCls}`}>2FA Setup</h2>
+      <p className={`mb-6 font-mono text-xs ${subtextCls}`}>
         Two-factor authentication adds a second layer of security to your account.
       </p>
 
       {setupLoading && (
-        <p className="font-mono text-sm text-matrix-dim">{'> generating QR code...'}</p>
+        <p className={`font-mono text-sm ${subtextCls}`}>{'> generating QR code...'}</p>
       )}
 
       {setupError && (
@@ -77,26 +92,26 @@ export default function TwoFactorSetup() {
       )}
 
       {success && (
-        <div className="rounded border border-matrix-green/40 bg-matrix-green/10 px-3 py-2 font-mono text-sm text-matrix-green">
+        <div className={`rounded border px-3 py-2 font-mono text-sm ${isMatrix ? 'border-matrix-green/40 bg-matrix-green/10 text-matrix-green' : 'border-bluepill-accent/40 bg-bluepill-accent/10 text-bluepill-accent'}`}>
           2FA has been enabled successfully.
         </div>
       )}
 
       {qrCode && !success && (
         <>
-          <div className="mb-4 rounded border border-matrix-green/20 bg-bg-void p-4 text-center">
-            <p className="mb-3 font-mono text-xs text-matrix-dim">
+          <div className={`mb-4 rounded border p-4 text-center ${infoBoxCls}`}>
+            <p className={`mb-3 font-mono text-xs ${subtextCls}`}>
               Scan this QR code with Google Authenticator, Authy, or any TOTP app:
             </p>
             <img src={qrCode} alt="2FA QR Code" className="mx-auto" />
           </div>
 
           {secret && (
-            <div className="mb-4 rounded border border-matrix-green/10 bg-bg-void px-3 py-2">
-              <p className="mb-1 font-mono text-xs text-matrix-dim">
+            <div className={`mb-4 rounded border px-3 py-2 ${isMatrix ? 'border-matrix-green/10 bg-bg-void' : 'border-gray-200 bg-white'}`}>
+              <p className={`mb-1 font-mono text-xs ${subtextCls}`}>
                 Or enter this key manually:
               </p>
-              <p className="break-all font-mono text-sm text-matrix-green">{secret}</p>
+              <p className={`break-all font-mono text-sm ${headingCls}`}>{secret}</p>
             </div>
           )}
 
@@ -107,12 +122,12 @@ export default function TwoFactorSetup() {
               </div>
             )}
 
-            <p className="font-mono text-xs text-matrix-dim">
+            <p className={`font-mono text-xs ${subtextCls}`}>
               After scanning, enter the 6-digit code from your app to confirm setup:
             </p>
 
             <div>
-              <label htmlFor="totp-code" className="mb-1 block font-mono text-xs text-matrix-dim">
+              <label htmlFor="totp-code" className={`mb-1 block font-mono text-xs ${subtextCls}`}>
                 verification code
               </label>
               <input
@@ -125,7 +140,7 @@ export default function TwoFactorSetup() {
                 autoComplete="one-time-code"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="w-full rounded border border-matrix-green/20 bg-bg-void px-3 py-2 text-center font-mono text-2xl tracking-[0.5em] text-matrix-green outline-none transition-colors placeholder:text-matrix-dim/50 focus:border-matrix-green/50"
+                className={`w-full rounded border px-3 py-2 text-center font-mono text-2xl tracking-[0.5em] outline-none transition-colors ${inputCls}`}
                 placeholder="000000"
               />
             </div>
@@ -133,7 +148,7 @@ export default function TwoFactorSetup() {
             <button
               type="submit"
               disabled={loading || code.length !== 6}
-              className="w-full rounded border border-matrix-green/40 bg-matrix-green/10 px-4 py-2 font-mono text-sm text-matrix-green transition-colors hover:bg-matrix-green/20 disabled:opacity-50"
+              className={`w-full rounded border px-4 py-2 font-mono text-sm transition-colors disabled:opacity-50 ${submitCls}`}
             >
               {loading ? '> confirming...' : '> confirm & enable 2fa'}
             </button>
