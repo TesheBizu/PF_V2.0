@@ -87,9 +87,7 @@ export default function Toast({ message, type = 'success', onDismiss }) {
   const cursorColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const prefix = isSuccess ? '>' : '!'
 
-  const boxClass = isMatrix
-    ? `bg-bg-void/95 border-matrix-green/40 text-matrix-green shadow-[0_0_14px_rgba(0,255,65,0.2)]`
-    : `bg-white border-gray-200 text-bluepill-text shadow-lg`
+  const textColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-text'
   const prefixColor = isMatrix
     ? isSuccess
       ? 'text-matrix-green'
@@ -98,6 +96,9 @@ export default function Toast({ message, type = 'success', onDismiss }) {
       ? 'text-bluepill-accent'
       : 'text-alert'
   const xColor = isMatrix ? 'text-matrix-green/50' : 'text-gray-400'
+  const textShadow = isMatrix
+    ? '1px 1px 3px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.5)'
+    : '0 1px 2px rgba(0,0,0,0.08)'
 
   const showCursor = phase === 'type' || phase === 'hold' || phase === 'erase'
 
@@ -115,7 +116,8 @@ export default function Toast({ message, type = 'success', onDismiss }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 12 }}
               transition={{ duration: 0.3 }}
-              className={`pointer-events-auto flex max-w-md items-start gap-2 rounded border px-4 py-3 font-mono text-sm leading-snug ${boxClass}`}
+              className={`pointer-events-auto flex items-start gap-2 font-mono text-sm leading-snug ${textColor}`}
+              style={{ textShadow }}
             >
               <span className={`shrink-0 select-none ${prefixColor}`}>{prefix}</span>
               <span className="flex-1">{message}</span>
@@ -144,11 +146,12 @@ export default function Toast({ message, type = 'success', onDismiss }) {
         {message && phase !== 'done' && (
           <motion.div
             key={message}
-            initial={{ opacity: 0, y: 12, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.97 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className={`pointer-events-auto flex max-w-md items-start gap-2 rounded border px-4 py-3 font-mono text-sm leading-snug ${boxClass}`}
+            className={`pointer-events-auto flex items-start gap-2 font-mono text-sm leading-snug ${textColor}`}
+            style={{ textShadow }}
           >
             <span className={`shrink-0 select-none ${prefixColor}`}>{prefix}</span>
             <span className="flex-1">
