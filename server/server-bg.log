@@ -1,0 +1,41 @@
+◇ injected env (18) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+EMAIL_USER set: true | EMAIL_PASS set: true
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+Email transporter ready
+MongoDB connected
+Server running on port 5000
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: true
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing pending-2FA token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token

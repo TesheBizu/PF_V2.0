@@ -110,7 +110,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     const token = issueToken(admin)
     return res.json({ token, email: admin.email })
   } catch (err) {
-    console.error('Login error:', err.message)
+    console.error('[LOGIN] error:', err.message)
     return res.status(500).json({ message: 'An internal error occurred.' })
   }
 })
@@ -135,12 +135,6 @@ router.get(
   async (req, res) => {
     try {
       const admin = req.user
-
-      if (admin.totpEnabled) {
-        const pendingToken = issueToken(admin, { pending2fa: true })
-        return res.redirect(`${ADMIN_CLIENT_URL}/auth/callback?pendingToken=${pendingToken}`)
-      }
-
       const token = issueToken(admin)
       return res.redirect(`${ADMIN_CLIENT_URL}/auth/callback?token=${token}`)
     } catch (err) {
