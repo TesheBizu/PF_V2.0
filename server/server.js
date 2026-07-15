@@ -1,6 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
+import passport from 'passport'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import contactRouter from './routes/contact.js'
@@ -31,6 +32,7 @@ app.use(
   }),
 )
 app.use(express.json({ limit: '10mb' }))
+app.use(passport.initialize())
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' })

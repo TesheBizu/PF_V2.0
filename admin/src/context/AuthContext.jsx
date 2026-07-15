@@ -18,12 +18,14 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const res = await api.post('/auth/login', { email, password })
-    const { token: jwt } = res.data
+    return res.data
+  }, [])
+
+  const setAuthToken = useCallback((jwt) => {
     setToken(jwt)
     try {
       localStorage.setItem(STORAGE_KEY, jwt)
     } catch {}
-    return res.data
   }, [])
 
   const logout = useCallback(() => {
@@ -36,7 +38,7 @@ export function AuthProvider({ children }) {
   const isAuthenticated = !!token
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ token, login, logout, isAuthenticated, setAuthToken }}>
       {children}
     </AuthContext.Provider>
   )

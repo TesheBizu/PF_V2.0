@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Dashboard() {
@@ -28,6 +28,14 @@ export default function Dashboard() {
 
       <main className="p-6">
         <p className="font-mono text-sm text-matrix-dim">{'> dashboard — coming soon'}</p>
+        <div className="mt-6">
+          <Link
+            to="/settings/2fa"
+            className="font-mono text-sm text-matrix-green/70 transition-colors hover:text-matrix-green"
+          >
+            {'> 2fa settings'}
+          </Link>
+        </div>
       </main>
     </div>
   )
