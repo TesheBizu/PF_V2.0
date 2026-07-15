@@ -2,32 +2,33 @@ import { useRef, useState, useEffect, useMemo } from 'react'
 import { motion, useInView, useReducedMotion, animate } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 import TerminalReveal from '../ui/TerminalReveal'
+import TechIcon from '../ui/TechIcon'
 
 const SKILLS = [
   // Frontend
-  { name: 'React', category: 'Frontend', proficiency: 92 },
-  { name: 'Next.js', category: 'Frontend', proficiency: 80 },
-  { name: 'TypeScript', category: 'Frontend', proficiency: 88 },
-  { name: 'Tailwind CSS', category: 'Frontend', proficiency: 90 },
-  { name: 'Framer Motion', category: 'Frontend', proficiency: 75 },
-  { name: 'Redux', category: 'Frontend', proficiency: 78 },
+  { name: 'React', category: 'Frontend', proficiency: 92, icon: 'SiReact', brandColor: '#61DAFB' },
+  { name: 'Next.js', category: 'Frontend', proficiency: 80, icon: 'SiNextdotjs', brandColor: '#000000' },
+  { name: 'TypeScript', category: 'Frontend', proficiency: 88, icon: 'SiTypescript', brandColor: '#3178C6' },
+  { name: 'Tailwind CSS', category: 'Frontend', proficiency: 90, icon: 'SiTailwindcss', brandColor: '#06B6D4' },
+  { name: 'Framer Motion', category: 'Frontend', proficiency: 75, icon: 'SiFramer', brandColor: '#0055FF' },
+  { name: 'Redux', category: 'Frontend', proficiency: 78, icon: 'SiRedux', brandColor: '#764ABC' },
   // Backend
-  { name: 'Node.js', category: 'Backend', proficiency: 90 },
-  { name: 'Express', category: 'Backend', proficiency: 88 },
-  { name: 'Python', category: 'Backend', proficiency: 72 },
-  { name: 'GraphQL', category: 'Backend', proficiency: 70 },
-  { name: 'REST APIs', category: 'Backend', proficiency: 92 },
+  { name: 'Node.js', category: 'Backend', proficiency: 90, icon: 'SiNodedotjs', brandColor: '#5FA04E' },
+  { name: 'Express', category: 'Backend', proficiency: 88, icon: 'SiExpress', brandColor: '#000000' },
+  { name: 'Python', category: 'Backend', proficiency: 72, icon: 'SiPython', brandColor: '#3776AB' },
+  { name: 'GraphQL', category: 'Backend', proficiency: 70, icon: 'SiGraphql', brandColor: '#E10098' },
+  { name: 'REST APIs', category: 'Backend', proficiency: 92, icon: 'FiCode', brandColor: '#6B7280' },
   // Database
-  { name: 'MongoDB', category: 'Database', proficiency: 90 },
-  { name: 'PostgreSQL', category: 'Database', proficiency: 80 },
-  { name: 'Redis', category: 'Database', proficiency: 68 },
-  { name: 'Mongoose', category: 'Database', proficiency: 85 },
+  { name: 'MongoDB', category: 'Database', proficiency: 90, icon: 'SiMongodb', brandColor: '#47A248' },
+  { name: 'PostgreSQL', category: 'Database', proficiency: 80, icon: 'SiPostgresql', brandColor: '#4169E1' },
+  { name: 'Redis', category: 'Database', proficiency: 68, icon: 'SiRedis', brandColor: '#FF4438' },
+  { name: 'Mongoose', category: 'Database', proficiency: 85, icon: 'SiMongoose', brandColor: '#880000' },
   // Tools
-  { name: 'Git', category: 'Tools', proficiency: 90 },
-  { name: 'Docker', category: 'Tools', proficiency: 74 },
-  { name: 'Vite', category: 'Tools', proficiency: 86 },
-  { name: 'Linux', category: 'Tools', proficiency: 82 },
-  { name: 'Postman', category: 'Tools', proficiency: 80 },
+  { name: 'Git', category: 'Tools', proficiency: 90, icon: 'SiGit', brandColor: '#F03C2E' },
+  { name: 'Docker', category: 'Tools', proficiency: 74, icon: 'SiDocker', brandColor: '#2496ED' },
+  { name: 'Vite', category: 'Tools', proficiency: 86, icon: 'SiVite', brandColor: '#9135FF' },
+  { name: 'Linux', category: 'Tools', proficiency: 82, icon: 'SiLinux', brandColor: '#FCC624' },
+  { name: 'Postman', category: 'Tools', proficiency: 80, icon: 'SiPostman', brandColor: '#FF6C37' },
 ]
 
 const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools']
@@ -84,11 +85,14 @@ export default function Skills() {
                     <SkillBar
                       key={skill.name}
                       name={skill.name}
+                      icon={skill.icon}
+                      brandColor={skill.brandColor}
                       proficiency={skill.proficiency}
                       barColor={barColor}
                       borderColor={borderColor}
                       trackBg={trackBg}
                       textColor={textColor}
+                      iconColor={accent}
                       delay={delay}
                       inView={inView}
                       reduce={reduce}
@@ -106,11 +110,14 @@ export default function Skills() {
 
 function SkillBar({
   name,
+  icon,
+  brandColor,
   proficiency,
   barColor,
   borderColor,
   trackBg,
   textColor,
+  iconColor,
   delay,
   inView,
   reduce,
@@ -134,8 +141,11 @@ function SkillBar({
 
   return (
     <div className={`rounded-md border px-3 py-3 ${borderColor}`}>
-      <div className='flex items-baseline justify-between gap-2'>
-        <span className={`truncate font-mono text-sm ${textColor}`}>{name}</span>
+      <div className='flex items-center justify-between gap-2'>
+        <span className={`flex min-w-0 items-center gap-1.5 truncate font-mono text-sm ${textColor}`}>
+          <TechIcon icon={icon} size={14} className={`shrink-0 ${iconColor}`} brandColor={brandColor} />
+          {name}
+        </span>
         <span className={`shrink-0 font-data text-xs ${textColor}`}>{pct}%</span>
       </div>
       <div className={`mt-2 h-2 w-full overflow-hidden rounded-full ${trackBg}`}>
