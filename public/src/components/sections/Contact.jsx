@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTheme } from '../../context/ThemeContext'
 import api from '../../lib/api'
 import TerminalReveal from '../ui/TerminalReveal'
+import Toast from '../ui/Toast'
 import { GitHubIcon, LinkedInIcon, TwitterIcon } from '../ui/icons'
 
 const schema = z.object({
@@ -26,8 +27,8 @@ const SOCIALS = [
 export default function Contact() {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
-  const [status, setStatus] = useState('idle') // idle | loading | success | error
-  const [serverError, setServerError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [toast, setToast] = useState({ message: '', type: 'success', key: 0 })
 
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
@@ -63,25 +64,31 @@ export default function Contact() {
   } = useForm({ resolver: zodResolver(schema), mode: 'onTouched' })
 
   const onSubmit = async (data) => {
-    setStatus('loading')
-    setServerError('')
+    setSubmitting(true)
     try {
       await api.post('/contact', data)
-      setStatus('success')
+      reset()
+      setToast((t) => ({
+        message: 'message.sent successfully',
+        type: 'success',
+        key: t.key + 1,
+      }))
     } catch (err) {
-      setStatus('error')
-      setServerError(
-        err.response?.data?.message ||
-          'transmission failed. please try again or reach out directly via email below.',
-      )
+      setToast({
+        message:
+          err.response?.data?.message ||
+          'transmission failed — try again or email directly',
+        type: 'error',
+        key: toast.key + 1,
+      })
+    } finally {
+      setSubmitting(false)
     }
   }
 
-  const sendAnother = () => {
-    reset()
-    setServerError('')
-    setStatus('idle')
-  }
+  const dismissToast = useCallback(() => {
+    setToast((t) => ({ ...t, message: '' }))
+  }, [])
 
   return (
     <section id="contact" className="px-6 py-24">
@@ -97,27 +104,7 @@ export default function Contact() {
         <div className="grid gap-10 md:grid-cols-2">
           {/* left: form */}
           <div>
-            {status === 'success' ? (
-              <div
-                className={`rounded-lg border p-8 font-mono ${infoBox}`}
-                role="status"
-              >
-                <p className={`text-lg ${subColor}`}>
-                  <span aria-hidden="true">[✓]</span> message received.
-                </p>
-                <p className={`mt-2 text-sm ${textColor}`}>
-                  i'll respond within 24-48 hours.
-                </p>
-                <button
-                  type="button"
-                  onClick={sendAnother}
-                  className={`mt-6 rounded border px-4 py-2 font-mono text-sm transition-colors ${btnClass}`}
-                >
-                  &gt; send another message
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit(onSubmit)} noValidate className="font-mono">
+            <form onSubmit={handleSubmit(onSubmit)} noValidate className="font-mono">
                 <div className="mb-6">
                   <label htmlFor="name" className={`block text-sm ${labelColor}`}>
                     &gt; enter your name:
@@ -170,7 +157,7 @@ export default function Contact() {
                     placeholder="Type your message here (min 10 characters)..."
                     aria-invalid={!!errors.message}
                     aria-describedby={errors.message ? 'message-error' : undefined}
-                    className={`mt-1 resize-y ${inputBase} ${inputBorder}`}
+                    className={`mt-1 resize-none ${inputBase} ${inputBorder}`}
                     {...register('message')}
                   />
                   {errors.message && (
@@ -180,18 +167,12 @@ export default function Contact() {
                   )}
                 </div>
 
-                {status === 'error' && (
-                  <p className={`mb-4 text-sm ${errorColor}`}>
-                    &gt; {serverError}
-                  </p>
-                )}
-
                 <button
                   type="submit"
-                  disabled={status === 'loading'}
+                  disabled={submitting}
                   className={`inline-flex items-center gap-2 rounded border px-5 py-2.5 font-mono text-sm transition-colors disabled:opacity-60 ${btnClass}`}
                 >
-                  {status === 'loading' ? (
+                  {submitting ? (
                     <>
                       <svg
                         className="h-3.5 w-3.5 animate-spin"
@@ -220,7 +201,6 @@ export default function Contact() {
                   )}
                 </button>
               </form>
-            )}
           </div>
 
           {/* right: info + socials */}
@@ -259,6 +239,13 @@ export default function Contact() {
           </div>
         </div>
       </div>
+
+      <Toast
+        key={toast.key}
+        message={toast.message}
+        type={toast.type}
+        onDismiss={dismissToast}
+      />
     </section>
   )
 }

@@ -98,7 +98,7 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
         transition={{ ...base, delay: shouldReduceMotion ? 0 : 0.2 }}
       >
         <span className={accentColor}>&gt;</span> {roleText}
-        <span className="ml-0.5 animate-pulse">|</span>
+        <span className="ml-0.5 animate-pulse">_</span>
       </motion.div>
 
       <motion.p
