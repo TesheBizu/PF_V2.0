@@ -24,7 +24,7 @@ api.interceptors.response.use(
       try {
         localStorage.removeItem('pf-admin-token')
       } catch {}
-      window.location.href = '/'
+      window.location.href = '/login'
     }
     return Promise.reject(error)
   },

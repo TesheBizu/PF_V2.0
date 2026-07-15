@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import contactRouter from './routes/contact.js'
 import githubRouter from './routes/github.js'
+import authRouter from './routes/auth.js'
 
 dotenv.config()
 
@@ -35,6 +36,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
 
+app.use('/api/auth', authRouter)
 app.use('/api/contact', contactRouter)
 app.use('/api/github', githubRouter)
 
