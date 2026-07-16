@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import ToastContainer from './components/Toast'
 import App from './App'
+import 'devicon/devicon.min.css'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(

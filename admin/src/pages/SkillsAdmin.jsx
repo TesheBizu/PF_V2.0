@@ -3,17 +3,33 @@ import { useTheme } from '../context/ThemeContext'
 import { useToast } from '../context/ToastContext'
 import api from '../lib/api'
 import socket from '../lib/socket'
-import IconPicker from '../components/IconPicker'
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, Eye, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, Eye, EyeOff, Code, Network, Workflow, FlaskConical, Repeat, LayoutDashboard, GitBranch, Boxes, Braces } from 'lucide-react'
+import deviconData from 'devicon/devicon.json'
 
-const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools']
+const CONCEPT_ICON_MAP = {
+  Network,
+  Workflow,
+  FlaskConical,
+  Repeat,
+  LayoutDashboard,
+  GitBranch,
+  Boxes,
+  Braces,
+}
+
+const hasPlain = new Set(
+  deviconData
+    .filter((e) => e.versions?.font?.includes('plain'))
+    .map((e) => e.name),
+)
+
+const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools', 'Programming']
 
 const EMPTY_FORM = {
   name: '',
   category: 'Frontend',
   proficiency: 50,
-  icon: '',
-  brandColor: '',
+  yearsExperience: 1,
   isVisible: true,
   order: 0,
 }
@@ -89,8 +105,7 @@ export default function SkillsAdmin() {
       name: s.name,
       category: s.category,
       proficiency: s.proficiency,
-      icon: s.icon,
-      brandColor: s.brandColor,
+      yearsExperience: s.yearsExperience ?? 1,
       isVisible: s.isVisible,
       order: s.order,
     })
@@ -107,9 +122,6 @@ export default function SkillsAdmin() {
     e.preventDefault()
     if (!form.name.trim()) {
       return toast.error('Name is required.')
-    }
-    if (!form.icon || !form.brandColor) {
-      return toast.error('Please select an icon.')
     }
     setSaving(true)
     try {
@@ -215,9 +227,14 @@ export default function SkillsAdmin() {
 
               <div
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded"
-                style={{ backgroundColor: s.brandColor + '20' }}
               >
-                <div className="h-5 w-5 rounded-full" style={{ backgroundColor: s.brandColor }} />
+                {s.conceptIcon && CONCEPT_ICON_MAP[s.conceptIcon] ? (
+                  (() => { const Icon = CONCEPT_ICON_MAP[s.conceptIcon]; return <Icon className={`h-5 w-5 ${subtextCls}`} />; })()
+                ) : s.iconName ? (
+                  <i className={`devicon-${s.iconName}-${hasPlain.has(s.iconName) ? 'plain' : 'original'} colored text-2xl`} />
+                ) : (
+                  <Code className={`h-5 w-5 ${subtextCls}`} />
+                )}
               </div>
 
               <div className="min-w-0 flex-1">
@@ -225,11 +242,14 @@ export default function SkillsAdmin() {
                   <span className={`truncate font-mono text-sm font-semibold ${isMatrix ? 'text-text-primary' : 'text-gray-900'}`}>{s.name}</span>
                   <span className={`rounded border px-1.5 py-0.5 font-mono text-[10px] ${badgeDim}`}>{s.category}</span>
                   <span className={`font-mono text-[10px] ${subtextCls}`}>{s.proficiency}%</span>
+                  {s.yearsExperience != null && (
+                    <span className={`font-mono text-[10px] ${subtextCls}`}>{s.yearsExperience} yrs</span>
+                  )}
                   <span className={`rounded border px-1.5 py-0.5 font-mono text-[10px] ${s.isVisible ? badgeGreen : badgeDim}`}>
                     {s.isVisible ? 'visible' : 'hidden'}
                   </span>
                 </div>
-                <p className={`mt-0.5 truncate font-mono text-xs ${subtextCls}`}>{s.icon}</p>
+                <p className={`mt-0.5 truncate font-mono text-xs ${subtextCls}`}>{s.iconName || 'no icon'}</p>
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
@@ -265,14 +285,6 @@ export default function SkillsAdmin() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>icon</label>
-                <IconPicker
-                  selected={form.icon ? { identifier: form.icon, name: form.name, brandColor: form.brandColor } : null}
-                  onSelect={(item) => setForm((f) => ({ ...f, icon: item.identifier, brandColor: item.brandColor }))}
-                />
-              </div>
-
-              <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>name *</label>
                 <input
                   value={form.name}
@@ -281,9 +293,10 @@ export default function SkillsAdmin() {
                   placeholder="Skill name"
                   required
                 />
+                <p className={`mt-1 font-mono text-[10px] ${subtextCls}`}>icon auto-detected (devicon or concept icon)</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>category *</label>
                   <select
@@ -304,6 +317,17 @@ export default function SkillsAdmin() {
                     max={100}
                     value={form.proficiency}
                     onChange={(e) => setForm((f) => ({ ...f, proficiency: Number(e.target.value) }))}
+                    className={`w-full rounded border px-3 py-2 font-mono text-sm outline-none transition-colors ${inputCls}`}
+                  />
+                </div>
+                <div>
+                  <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>years exp</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.5}
+                    value={form.yearsExperience}
+                    onChange={(e) => setForm((f) => ({ ...f, yearsExperience: Number(e.target.value) }))}
                     className={`w-full rounded border px-3 py-2 font-mono text-sm outline-none transition-colors ${inputCls}`}
                   />
                 </div>

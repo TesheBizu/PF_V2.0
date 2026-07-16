@@ -1,11 +1,10 @@
 import express from 'express'
 import auth from '../middleware/auth.js'
 import Skill from '../models/Skill.js'
-import iconLibrary from '../data/iconLibrary.js'
+import resolveIcon from '../utils/resolveIcon.js'
 
 const router = express.Router()
 
-// GET /api/skills — public, visible only, sorted by category then order
 router.get('/', async (_req, res) => {
   try {
     const skills = await Skill.find({ isVisible: true }).sort({ category: 1, order: 1 })
@@ -16,7 +15,6 @@ router.get('/', async (_req, res) => {
   }
 })
 
-// GET /api/skills/all — protected, all skills
 router.get('/all', auth, async (_req, res) => {
   try {
     const skills = await Skill.find().sort({ category: 1, order: 1 })
@@ -27,26 +25,23 @@ router.get('/all', auth, async (_req, res) => {
   }
 })
 
-// GET /api/skills/icon-library — protected, returns icon lookup list
-router.get('/icon-library', auth, async (_req, res) => {
-  return res.json(iconLibrary)
-})
-
-// POST /api/skills — protected, create
 router.post('/', auth, async (req, res) => {
   try {
-    const { name, category, proficiency, icon, brandColor, order, isVisible } = req.body
+    const { name, category, proficiency, yearsExperience, order, isVisible } = req.body
 
-    if (!name || !category || proficiency === undefined || !icon || !brandColor) {
-      return res.status(400).json({ message: 'Name, category, proficiency, icon, and brandColor are required.' })
+    if (!name || !category || proficiency === undefined || yearsExperience === undefined) {
+      return res.status(400).json({ message: 'Name, category, proficiency, and yearsExperience are required.' })
     }
+
+    const resolved = resolveIcon(name)
 
     const skill = await Skill.create({
       name,
       category,
       proficiency: Number(proficiency),
-      icon,
-      brandColor,
+      yearsExperience: Number(yearsExperience),
+      iconName: resolved.iconName,
+      conceptIcon: resolved.conceptIcon || null,
       order: Number(order) || 0,
       isVisible: isVisible === undefined ? true : (isVisible === 'true' || isVisible === true),
     })
@@ -61,7 +56,6 @@ router.post('/', auth, async (req, res) => {
   }
 })
 
-// PUT /api/skills/:id — protected, update
 router.put('/:id', auth, async (req, res) => {
   try {
     const skill = await Skill.findById(req.params.id)
@@ -69,13 +63,17 @@ router.put('/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Skill not found.' })
     }
 
-    const { name, category, proficiency, icon, brandColor, order, isVisible } = req.body
+    const { name, category, proficiency, yearsExperience, order, isVisible } = req.body
 
-    if (name !== undefined) skill.name = name
+    if (name !== undefined) {
+      skill.name = name
+      const resolved = resolveIcon(name)
+      skill.iconName = resolved.iconName
+      skill.conceptIcon = resolved.conceptIcon || null
+    }
     if (category !== undefined) skill.category = category
     if (proficiency !== undefined) skill.proficiency = Number(proficiency)
-    if (icon !== undefined) skill.icon = icon
-    if (brandColor !== undefined) skill.brandColor = brandColor
+    if (yearsExperience !== undefined) skill.yearsExperience = Number(yearsExperience)
     if (order !== undefined) skill.order = Number(order)
     if (isVisible !== undefined) skill.isVisible = isVisible === 'true' || isVisible === true
 
@@ -91,7 +89,6 @@ router.put('/:id', auth, async (req, res) => {
   }
 })
 
-// DELETE /api/skills/:id — protected
 router.delete('/:id', auth, async (req, res) => {
   try {
     const skill = await Skill.findByIdAndDelete(req.params.id)
@@ -109,7 +106,6 @@ router.delete('/:id', auth, async (req, res) => {
   }
 })
 
-// PATCH /api/skills/:id/reorder — protected
 router.patch('/:id/reorder', auth, async (req, res) => {
   try {
     const { order } = req.body

@@ -1,0 +1,26 @@
+const conceptOverrides = {
+  restapi: 'Network',
+  restapis: 'Network',
+  restfulapi: 'Network',
+  api: 'Network',
+  cicd: 'Workflow',
+  unittesting: 'FlaskConical',
+  testing: 'FlaskConical',
+  automatedtesting: 'FlaskConical',
+  integrationtesting: 'FlaskConical',
+  e2etesting: 'FlaskConical',
+  endtoendtesting: 'FlaskConical',
+  agile: 'Repeat',
+  scrum: 'Repeat',
+  sprint: 'Repeat',
+  kanban: 'LayoutDashboard',
+  versioncontrol: 'GitBranch',
+  gitworkflow: 'GitBranch',
+  devops: 'Workflow',
+  sdlc: 'Repeat',
+  oop: 'Boxes',
+  objectorientedprogramming: 'Boxes',
+  functionalprogramming: 'Braces',
+}
+
+export default conceptOverrides

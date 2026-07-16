@@ -1,58 +1,49 @@
+import { useState } from 'react'
+import { FiCode } from 'react-icons/fi'
 import {
-  SiReact,
-  SiNextdotjs,
-  SiTypescript,
-  SiTailwindcss,
-  SiFramer,
-  SiRedux,
-  SiNodedotjs,
-  SiExpress,
-  SiPython,
-  SiGraphql,
-  SiMongodb,
-  SiPostgresql,
-  SiRedis,
-  SiMongoose,
-  SiGit,
-  SiDocker,
-  SiVite,
-  SiLinux,
-  SiPostman,
-} from 'react-icons/si'
-import { FiCode, FiGlobe } from 'react-icons/fi'
-import { LuDatabase } from 'react-icons/lu'
+  Network,
+  Workflow,
+  FlaskConical,
+  Repeat,
+  LayoutDashboard,
+  GitBranch,
+  Boxes,
+  Braces,
+} from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
+import deviconData from 'devicon/devicon.json'
 
-const ICON_MAP = {
-  SiReact,
-  SiNextdotjs,
-  SiTypescript,
-  SiTailwindcss,
-  SiFramer,
-  SiRedux,
-  SiNodedotjs,
-  SiExpress,
-  SiPython,
-  SiGraphql,
-  SiMongodb,
-  SiPostgresql,
-  SiRedis,
-  SiMongoose,
-  SiGit,
-  SiDocker,
-  SiVite,
-  SiLinux,
-  SiPostman,
-  FiCode,
-  FiGlobe,
-  LuDatabase,
+const CONCEPT_ICON_MAP = {
+  Network,
+  Workflow,
+  FlaskConical,
+  Repeat,
+  LayoutDashboard,
+  GitBranch,
+  Boxes,
+  Braces,
 }
 
-const DEFAULT_ICON = FiCode
+const hasPlain = new Set(
+  deviconData
+    .filter((e) => e.versions?.font?.includes('plain'))
+    .map((e) => e.name),
+)
 
-export default function TechIcon({ icon, size = 16, className = '', brandColor }) {
+export default function TechIcon({ iconName, conceptIcon, size = 16, className = '' }) {
   const { theme } = useTheme()
-  const IconComponent = (icon && ICON_MAP[icon]) || DEFAULT_ICON
-  const style = theme === 'bluepill' && brandColor ? { color: brandColor } : undefined
-  return <IconComponent size={size} className={className} style={style} />
+
+  if (conceptIcon && CONCEPT_ICON_MAP[conceptIcon]) {
+    const Icon = CONCEPT_ICON_MAP[conceptIcon]
+    return <Icon size={size} className={className} />
+  }
+
+  if (!iconName) {
+    return <FiCode size={size} className={className} />
+  }
+
+  const variant = hasPlain.has(iconName) ? 'plain' : 'original'
+  const cls = `devicon-${iconName}-${variant} colored ${className}`
+
+  return <i className={cls} style={{ fontSize: size }} />
 }

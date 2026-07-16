@@ -6,7 +6,7 @@ import socket from '../../lib/socket'
 import TerminalReveal from '../ui/TerminalReveal'
 import TechIcon from '../ui/TechIcon'
 
-const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools']
+const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools', 'Programming']
 
 export default function Skills() {
   const { theme } = useTheme()
@@ -85,7 +85,7 @@ export default function Skills() {
       const start = idx
       idx += items.length
       return { category, items, start }
-    })
+    }).filter((g) => g.items.length > 0)
   }, [skills])
 
   return (
@@ -115,9 +115,10 @@ export default function Skills() {
                     <SkillBar
                       key={skill._id}
                       name={skill.name}
-                      icon={skill.icon}
-                      brandColor={skill.brandColor}
+                      iconName={skill.iconName}
+                      conceptIcon={skill.conceptIcon}
                       proficiency={skill.proficiency}
+                      yearsExperience={skill.yearsExperience}
                       barColor={barColor}
                       borderColor={borderColor}
                       trackBg={trackBg}
@@ -140,9 +141,10 @@ export default function Skills() {
 
 function SkillBar({
   name,
-  icon,
-  brandColor,
+  iconName,
+  conceptIcon,
   proficiency,
+  yearsExperience,
   barColor,
   borderColor,
   trackBg,
@@ -173,18 +175,25 @@ function SkillBar({
     <div className={`rounded-md border px-3 py-3 ${borderColor}`}>
       <div className='flex items-center justify-between gap-2'>
         <span className={`flex min-w-0 items-center gap-1.5 truncate font-mono text-sm ${textColor}`}>
-          <TechIcon icon={icon} size={14} className={`shrink-0 ${iconColor}`} brandColor={brandColor} />
+          <TechIcon iconName={iconName} conceptIcon={conceptIcon} size={14} className={`shrink-0 ${iconColor}`} />
           {name}
         </span>
         <span className={`shrink-0 font-data text-xs ${textColor}`}>{pct}%</span>
       </div>
-      <div className={`mt-2 h-2 w-full overflow-hidden rounded-full ${trackBg}`}>
-        <motion.div
-          className={`h-full rounded-full ${barColor}`}
-          initial={{ width: '0%' }}
-          animate={{ width: inView ? `${proficiency}%` : '0%' }}
-          transition={{ duration: reduce ? 0 : 1.1, delay: reduce ? 0 : delay, ease: 'easeOut' }}
-        />
+      <div className='mt-1 flex items-center justify-between'>
+        <div className={`h-2 flex-1 overflow-hidden rounded-full ${trackBg}`}>
+          <motion.div
+            className={`h-full rounded-full ${barColor}`}
+            initial={{ width: '0%' }}
+            animate={{ width: inView ? `${proficiency}%` : '0%' }}
+            transition={{ duration: reduce ? 0 : 1.1, delay: reduce ? 0 : delay, ease: 'easeOut' }}
+          />
+        </div>
+        {yearsExperience != null && (
+          <span className={`ml-2 shrink-0 font-data text-[10px] ${textColor}`}>
+            {yearsExperience} yrs
+          </span>
+        )}
       </div>
     </div>
   )
