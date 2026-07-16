@@ -10,6 +10,7 @@ import contactRouter from './routes/contact.js'
 import githubRouter from './routes/github.js'
 import authRouter from './routes/auth.js'
 import projectsRouter from './routes/projects.js'
+import skillsRouter from './routes/skills.js'
 
 dotenv.config()
 
@@ -50,6 +51,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/auth', authRouter)
 app.use('/api/projects', projectsRouter)
+app.use('/api/skills', skillsRouter)
 app.use('/api/contact', contactRouter)
 app.use('/api/github', githubRouter)
 

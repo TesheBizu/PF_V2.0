@@ -1,35 +1,10 @@
 import { useRef, useState, useEffect, useMemo } from 'react'
 import { motion, useInView, useReducedMotion, animate } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
+import api from '../../lib/api'
+import socket from '../../lib/socket'
 import TerminalReveal from '../ui/TerminalReveal'
 import TechIcon from '../ui/TechIcon'
-
-const SKILLS = [
-  // Frontend
-  { name: 'React', category: 'Frontend', proficiency: 92, icon: 'SiReact', brandColor: '#61DAFB' },
-  { name: 'Next.js', category: 'Frontend', proficiency: 80, icon: 'SiNextdotjs', brandColor: '#000000' },
-  { name: 'TypeScript', category: 'Frontend', proficiency: 88, icon: 'SiTypescript', brandColor: '#3178C6' },
-  { name: 'Tailwind CSS', category: 'Frontend', proficiency: 90, icon: 'SiTailwindcss', brandColor: '#06B6D4' },
-  { name: 'Framer Motion', category: 'Frontend', proficiency: 75, icon: 'SiFramer', brandColor: '#0055FF' },
-  { name: 'Redux', category: 'Frontend', proficiency: 78, icon: 'SiRedux', brandColor: '#764ABC' },
-  // Backend
-  { name: 'Node.js', category: 'Backend', proficiency: 90, icon: 'SiNodedotjs', brandColor: '#5FA04E' },
-  { name: 'Express', category: 'Backend', proficiency: 88, icon: 'SiExpress', brandColor: '#000000' },
-  { name: 'Python', category: 'Backend', proficiency: 72, icon: 'SiPython', brandColor: '#3776AB' },
-  { name: 'GraphQL', category: 'Backend', proficiency: 70, icon: 'SiGraphql', brandColor: '#E10098' },
-  { name: 'REST APIs', category: 'Backend', proficiency: 92, icon: 'FiCode', brandColor: '#6B7280' },
-  // Database
-  { name: 'MongoDB', category: 'Database', proficiency: 90, icon: 'SiMongodb', brandColor: '#47A248' },
-  { name: 'PostgreSQL', category: 'Database', proficiency: 80, icon: 'SiPostgresql', brandColor: '#4169E1' },
-  { name: 'Redis', category: 'Database', proficiency: 68, icon: 'SiRedis', brandColor: '#FF4438' },
-  { name: 'Mongoose', category: 'Database', proficiency: 85, icon: 'SiMongoose', brandColor: '#880000' },
-  // Tools
-  { name: 'Git', category: 'Tools', proficiency: 90, icon: 'SiGit', brandColor: '#F03C2E' },
-  { name: 'Docker', category: 'Tools', proficiency: 74, icon: 'SiDocker', brandColor: '#2496ED' },
-  { name: 'Vite', category: 'Tools', proficiency: 86, icon: 'SiVite', brandColor: '#9135FF' },
-  { name: 'Linux', category: 'Tools', proficiency: 82, icon: 'SiLinux', brandColor: '#FCC624' },
-  { name: 'Postman', category: 'Tools', proficiency: 80, icon: 'SiPostman', brandColor: '#FF6C37' },
-]
 
 const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools']
 
@@ -40,6 +15,59 @@ export default function Skills() {
 
   const sectionRef = useRef(null)
   const inView = useInView(sectionRef, { once: true, amount: 0.15 })
+
+  const [skills, setSkills] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    api
+      .get('/skills')
+      .then((res) => {
+        if (!cancelled) setSkills(res.data)
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+    socket.connect()
+
+    socket.on('skills:created', (s) => {
+      if (s.isVisible) setSkills((prev) => [...prev, s])
+    })
+
+    socket.on('skills:updated', (s) => {
+      setSkills((prev) => {
+        const exists = prev.some((x) => x._id === s._id)
+        if (s.isVisible) {
+          return exists
+            ? prev.map((x) => (x._id === s._id ? s : x))
+            : [...prev, s]
+        }
+        return exists ? prev.filter((x) => x._id !== s._id) : prev
+      })
+    })
+
+    socket.on('skills:deleted', ({ id }) => {
+      setSkills((prev) => prev.filter((x) => x._id !== id))
+    })
+
+    socket.on('skills:reordered', (list) => {
+      setSkills(list.filter((s) => s.isVisible))
+    })
+
+    return () => {
+      socket.off('skills:created')
+      socket.off('skills:updated')
+      socket.off('skills:deleted')
+      socket.off('skills:reordered')
+      socket.disconnect()
+    }
+  }, [])
 
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
@@ -53,12 +81,12 @@ export default function Skills() {
   const groups = useMemo(() => {
     let idx = 0
     return CATEGORIES.map((category) => {
-      const items = SKILLS.filter((s) => s.category === category)
+      const items = skills.filter((s) => s.category === category)
       const start = idx
       idx += items.length
       return { category, items, start }
     })
-  }, [])
+  }, [skills])
 
   return (
     <section ref={sectionRef} id='skills' className='px-6 py-24'>
@@ -72,7 +100,9 @@ export default function Skills() {
         </p>
 
         <div className='space-y-12'>
-          {groups.map((group) => (
+          {loading ? (
+            <p className={`font-mono text-sm ${muted}`}>{'> loading skills...'}</p>
+          ) : groups.map((group) => (
             <div key={group.category}>
               <h3 className={`mb-4 font-mono text-lg ${subColor}`}>
                 <span className='opacity-60'>$</span>{' '}
@@ -83,7 +113,7 @@ export default function Skills() {
                   const delay = reduce ? 0 : Math.min((group.start + i) * 0.07, 0.9)
                   return (
                     <SkillBar
-                      key={skill.name}
+                      key={skill._id}
                       name={skill.name}
                       icon={skill.icon}
                       brandColor={skill.brandColor}
