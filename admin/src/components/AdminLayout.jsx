@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import ThemeToggle from './ThemeToggle'
+import MatrixRain from './MatrixRain'
 import {
   LayoutDashboard,
   FolderKanban,
@@ -66,7 +67,7 @@ export default function AdminLayout() {
 
   const pageTitle = getPageTitle(location.pathname)
 
-  const sidebarBg = isMatrix ? 'bg-bg-void' : 'bg-white'
+  const sidebarBg = isMatrix ? 'bg-bg-void/85' : 'bg-white'
   const sidebarBorder = isMatrix ? 'border-matrix-green/15' : 'border-gray-200'
   const logoCls = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const linkCls = isMatrix
@@ -82,7 +83,7 @@ export default function AdminLayout() {
   const logoutCls = isMatrix
     ? 'text-matrix-dim hover:text-alert'
     : 'text-gray-400 hover:text-alert'
-  const contentBg = isMatrix ? 'bg-bg-void' : 'bg-bluepill-bg'
+  const contentBg = isMatrix ? 'bg-bg-void/85' : 'bg-bluepill-bg'
   const contentText = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
   const hamburgerCls = isMatrix
     ? 'text-matrix-dim hover:text-matrix-green'
@@ -132,9 +133,10 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className={`flex h-screen overflow-hidden ${contentBg} ${contentText}`}>
+    <div className={`relative flex h-screen overflow-hidden ${contentBg} ${contentText}`}>
+      {isMatrix && <MatrixRain active={isMatrix} />}
       <aside
-        className={`hidden lg:flex ${sidebarWidth} shrink-0 flex-col border-r ${sidebarBg} ${sidebarBorder}`}
+        className={`relative z-10 hidden lg:flex ${sidebarWidth} shrink-0 flex-col border-r ${sidebarBg} ${sidebarBorder}`}
       >
         <SidebarContent />
       </aside>
@@ -195,7 +197,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="relative z-10 flex flex-1 flex-col overflow-hidden">
         <header
           className={`flex items-center justify-between border-b px-4 py-3 backdrop-blur-sm sm:px-6 ${headerBorder} ${headerBg}`}
         >

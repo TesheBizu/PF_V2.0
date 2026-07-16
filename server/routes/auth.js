@@ -158,19 +158,37 @@ router.post('/2fa/setup', auth, async (req, res) => {
       return res.status(404).json({ message: 'Admin not found.' })
     }
 
-    const secret = speakeasy.generateSecret({
-      name: `PF_V2.0 Admin (${admin.email})`,
-      issuer: 'PF_V2.0',
-      length: 20,
-    })
+    if (admin.totpEnabled) {
+      return res.status(400).json({ message: '2FA is already enabled. Disable it first to re-setup.' })
+    }
 
-    admin.totpSecret = secret.base32
-    admin.totpEnabled = false
-    await admin.save()
+    let base32, otpauthUrl
 
-    const qrCode = await QRCode.toDataURL(secret.otpauth_url)
+    if (admin.totpSecret) {
+      base32 = admin.totpSecret
+      const existing = speakeasy.otpauthURL({
+        label: `PF_V2.0 Admin (${admin.email})`,
+        issuer: 'PF_V2.0',
+        secret: base32,
+      })
+      otpauthUrl = existing
+    } else {
+      const secret = speakeasy.generateSecret({
+        name: `PF_V2.0 Admin (${admin.email})`,
+        issuer: 'PF_V2.0',
+        length: 20,
+      })
+      base32 = secret.base32
+      otpauthUrl = secret.otpauth_url
 
-    return res.json({ qrCode, secret: secret.base32 })
+      admin.totpSecret = base32
+      admin.totpEnabled = false
+      await admin.save()
+    }
+
+    const qrCode = await QRCode.toDataURL(otpauthUrl)
+
+    return res.json({ qrCode, secret: base32 })
   } catch (err) {
     console.error('2FA setup error:', err.message)
     return res.status(500).json({ message: 'Could not generate 2FA setup.' })
@@ -209,7 +227,7 @@ router.post('/2fa/verify-setup', auth, async (req, res) => {
     })
 
     if (!valid) {
-      return res.status(401).json({ message: 'Invalid verification code. Please try again.' })
+      return res.status(400).json({ message: 'Invalid verification code. Please try again.' })
     }
 
     admin.totpEnabled = true
@@ -218,6 +236,73 @@ router.post('/2fa/verify-setup', auth, async (req, res) => {
     return res.json({ message: '2FA has been enabled.' })
   } catch (err) {
     console.error('2FA verify-setup error:', err.message)
+    return res.status(500).json({ message: 'An internal error occurred.' })
+  }
+})
+
+// ---------------------------------------------------------------------------
+// GET /2fa/status  —  check if 2FA is enabled  (protected)
+// ---------------------------------------------------------------------------
+router.get('/2fa/status', auth, async (req, res) => {
+  if (req.admin.pending2fa) {
+    return res.status(403).json({ message: 'Full authentication required.' })
+  }
+
+  try {
+    const admin = await Admin.findById(req.admin.sub)
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found.' })
+    }
+
+    return res.json({ totpEnabled: admin.totpEnabled })
+  } catch (err) {
+    console.error('2FA status error:', err.message)
+    return res.status(500).json({ message: 'An internal error occurred.' })
+  }
+})
+
+// ---------------------------------------------------------------------------
+// POST /2fa/disable  —  disable TOTP  (protected, requires current code)
+// ---------------------------------------------------------------------------
+router.post('/2fa/disable', auth, verifyLimiter, async (req, res) => {
+  if (req.admin.pending2fa) {
+    return res.status(403).json({ message: 'Full authentication required.' })
+  }
+
+  const { code } = req.body || {}
+
+  if (!code || !/^\d{6}$/.test(code)) {
+    return res.status(400).json({ message: 'A 6-digit code is required.' })
+  }
+
+  try {
+    const admin = await Admin.findById(req.admin.sub)
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found.' })
+    }
+
+    if (!admin.totpEnabled || !admin.totpSecret) {
+      return res.status(400).json({ message: '2FA is not enabled.' })
+    }
+
+    const valid = speakeasy.totp.verify({
+      secret: admin.totpSecret,
+      encoding: 'base32',
+      token: code,
+      window: 1,
+    })
+
+    if (!valid) {
+      return res.status(400).json({ message: 'Invalid verification code.' })
+    }
+
+    admin.totpSecret = null
+    admin.totpEnabled = false
+    await admin.save()
+
+    return res.json({ message: '2FA has been disabled.' })
+  } catch (err) {
+    console.error('2FA disable error:', err.message)
     return res.status(500).json({ message: 'An internal error occurred.' })
   }
 })

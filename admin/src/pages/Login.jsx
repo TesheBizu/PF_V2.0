@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
+import { useToast } from '../context/ToastContext'
 import ThemeToggle from '../components/ThemeToggle'
+import MatrixRain from '../components/MatrixRain'
 
 function EyeIcon({ open }) {
   if (open) {
@@ -26,25 +28,24 @@ function EyeIcon({ open }) {
 export default function Login() {
   const { login, setAuthToken } = useAuth()
   const { theme } = useTheme()
+  const toast = useToast()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const isMatrix = theme === 'matrix'
 
   useEffect(() => {
     if (searchParams.get('error') === 'google_auth_failed') {
-      setError('Google authentication failed. The email may not be authorized.')
+      toast.error('Google authentication failed. The email may not be authorized.')
     }
   }, [searchParams])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
 
     try {
@@ -57,7 +58,7 @@ export default function Login() {
       }
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed. Please try again.'
-      setError(msg)
+      toast.error(msg)
     } finally {
       setLoading(false)
     }
@@ -84,24 +85,20 @@ export default function Login() {
 
   return (
     <>
+      <MatrixRain active={isMatrix} />
+
       <div className="fixed right-4 top-4 z-50">
         <ThemeToggle />
       </div>
 
-      <div className="flex min-h-screen items-center justify-center px-4">
-        <div className="w-full max-w-sm">
+      <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
+        <div className={`w-full max-w-sm rounded-lg p-6 ${isMatrix ? 'bg-bg-void/85' : 'bg-white/85 backdrop-blur-sm'}`}>
           <div className="mb-6 text-center">
             <h1 className={`font-mono text-2xl ${headingCls}`}>PF_V2.0</h1>
             <p className={`mt-1 font-mono text-sm ${subtitleCls}`}>admin access</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded border border-alert/40 bg-alert/10 px-3 py-2 font-mono text-sm text-alert">
-                {error}
-              </div>
-            )}
-
             <div>
               <label htmlFor="email" className={`mb-1 block font-mono text-xs ${labelCls}`}>
                 email

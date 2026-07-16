@@ -39,3 +39,73 @@ Server running on port 5000
 [LOGIN] totpEnabled: false
 [LOGIN] bcrypt.compare result: true
 [LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "admin@pf-v2.0"
+[LOGIN] admin found: false
+[LOGIN] REASON: admin not found for email
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+SyntaxError: Expected property name or '}' in JSON at position 1 (line 1 column 2)
+    at JSON.parse (<anonymous>)
+    at parse (E:\V-2.0\PF_V2.0\server\node_modules\body-parser\lib\types\json.js:91:21)
+    at E:\V-2.0\PF_V2.0\server\node_modules\body-parser\lib\read.js:162:18
+    at AsyncResource.runInAsyncScope (node:async_hooks:211:14)
+    at invokeCallback (E:\V-2.0\PF_V2.0\server\node_modules\raw-body\index.js:238:16)
+    at done (E:\V-2.0\PF_V2.0\server\node_modules\raw-body\index.js:227:7)
+    at IncomingMessage.onEnd (E:\V-2.0\PF_V2.0\server\node_modules\raw-body\index.js:287:7)
+    at IncomingMessage.emit (node:events:518:28)
+    at endReadableNT (node:internal/streams/readable:1698:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
+[LOGIN] query email: "teshelin7@gmail.com"
+[LOGIN] admin found: true
+[LOGIN] admin._id: new ObjectId('6a5764dcb97b476730b9b9ab')
+[LOGIN] passwordHash exists: string len=60
+[LOGIN] totpEnabled: false
+[LOGIN] bcrypt.compare result: true
+[LOGIN] → issuing full session token
