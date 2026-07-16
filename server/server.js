@@ -4,6 +4,8 @@ import helmet from 'helmet'
 import passport from 'passport'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 import contactRouter from './routes/contact.js'
 import githubRouter from './routes/github.js'
 import authRouter from './routes/auth.js'
@@ -18,6 +20,13 @@ const allowedOrigins = [
   process.env.PUBLIC_CLIENT_URL || 'http://localhost:5173',
   process.env.ADMIN_CLIENT_URL || 'http://localhost:5174',
 ]
+
+const httpServer = createServer(app)
+const io = new Server(httpServer, {
+  cors: { origin: allowedOrigins, credentials: true },
+})
+
+app.set('io', io)
 
 app.use(helmet())
 app.use(
@@ -53,7 +62,7 @@ const start = async () => {
       console.warn('MONGO_URI not set — running without database')
     }
 
-    app.listen(PORT, () => {
+    httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`)
     })
   } catch (err) {

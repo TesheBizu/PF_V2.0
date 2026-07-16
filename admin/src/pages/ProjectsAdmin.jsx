@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTheme } from '../context/ThemeContext'
 import { useToast } from '../context/ToastContext'
 import api from '../lib/api'
+import socket from '../lib/socket'
 import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, Star, Eye, EyeOff } from 'lucide-react'
 
 const EMPTY_FORM = {
@@ -43,6 +44,39 @@ export default function ProjectsAdmin() {
 
   useEffect(() => {
     fetchProjects()
+  }, [])
+
+  useEffect(() => {
+    socket.connect()
+
+    socket.on('projects:created', (project) => {
+      setProjects((prev) => {
+        if (prev.some((p) => p._id === project._id)) return prev
+        return [...prev, project]
+      })
+    })
+
+    socket.on('projects:updated', (project) => {
+      setProjects((prev) =>
+        prev.map((p) => (p._id === project._id ? project : p)),
+      )
+    })
+
+    socket.on('projects:deleted', ({ id }) => {
+      setProjects((prev) => prev.filter((p) => p._id !== id))
+    })
+
+    socket.on('projects:reordered', (list) => {
+      setProjects(list)
+    })
+
+    return () => {
+      socket.off('projects:created')
+      socket.off('projects:updated')
+      socket.off('projects:deleted')
+      socket.off('projects:reordered')
+      socket.disconnect()
+    }
   }, [])
 
   const openCreate = () => {
@@ -186,7 +220,7 @@ export default function ProjectsAdmin() {
     ? 'border-matrix-green/40 bg-matrix-green/10 text-matrix-green hover:bg-matrix-green/20'
     : 'border-bluepill-accent/40 bg-bluepill-accent/10 text-bluepill-accent hover:bg-bluepill-accent/20'
   const iconCls = isMatrix
-    ? 'text-matrix-dim hover:text-matrix-green'
+    ? 'text-matrix-green/60 hover:text-matrix-green'
     : 'text-gray-400 hover:text-bluepill-accent'
   const dangerCls = isMatrix
     ? 'border-alert/40 bg-alert/10 text-alert hover:bg-alert/20'

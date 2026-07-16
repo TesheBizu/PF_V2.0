@@ -3,11 +3,11 @@ import { useRef, useEffect } from 'react'
 const CHARS =
   'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const FONT_SIZE = 11
-const COLUMN_SPACING = 22
+const COLUMN_SPACING = 30
 const TARGET_FPS = 30
 const FRAME_INTERVAL = 1000 / TARGET_FPS
-const TRAIL_ALPHA = 0.1
-const CHAR_ALPHA = 0.8
+const TRAIL_ALPHA = 0.05
+const CHAR_ALPHA = 0.5
 const BG_COLOR = '#0a0e0a'
 const FG_COLOR = '#00ff41'
 
@@ -91,7 +91,7 @@ export default function MatrixRain({ active = true }) {
 
         ctx.fillText(char, x, y)
 
-        if (Math.random() > 0.975) {
+        if (Math.random() > 0.985) {
           columns[i] = 0
         }
         columns[i]++
@@ -117,7 +117,7 @@ export default function MatrixRain({ active = true }) {
         height: '100vh',
         zIndex: 0,
         pointerEvents: 'none',
-        opacity: active ? 1 : 0,
+        opacity: active ? 0.6 : 0,
         transition: reducedMotion ? 'none' : 'opacity 0.8s ease-in-out',
       }}
     />

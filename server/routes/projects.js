@@ -58,6 +58,9 @@ router.post('/', auth, upload.single('thumbnail'), async (req, res) => {
       order: Number(order) || 0,
     })
 
+    const io = req.app.get('io')
+    if (io) io.emit('projects:created', project)
+
     return res.status(201).json(project)
   } catch (err) {
     console.error('Create project error:', err.message)
@@ -94,6 +97,10 @@ router.put('/:id', auth, upload.single('thumbnail'), async (req, res) => {
     }
 
     await project.save()
+
+    const io = req.app.get('io')
+    if (io) io.emit('projects:updated', project)
+
     return res.json(project)
   } catch (err) {
     console.error('Update project error:', err.message)
@@ -108,6 +115,10 @@ router.delete('/:id', auth, async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: 'Project not found.' })
     }
+
+    const io = req.app.get('io')
+    if (io) io.emit('projects:deleted', { id: project._id })
+
     return res.json({ message: 'Project deleted.' })
   } catch (err) {
     console.error('Delete project error:', err.message)
@@ -131,6 +142,13 @@ router.patch('/:id/reorder', auth, async (req, res) => {
     if (!project) {
       return res.status(404).json({ message: 'Project not found.' })
     }
+
+    const io = req.app.get('io')
+    if (io) {
+      const sorted = await Project.find().sort({ order: 1 })
+      io.emit('projects:reordered', sorted)
+    }
+
     return res.json(project)
   } catch (err) {
     console.error('Reorder project error:', err.message)

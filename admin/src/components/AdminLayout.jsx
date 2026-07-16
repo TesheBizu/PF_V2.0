@@ -67,7 +67,7 @@ export default function AdminLayout() {
 
   const pageTitle = getPageTitle(location.pathname)
 
-  const sidebarBg = isMatrix ? 'bg-bg-void/85' : 'bg-white'
+  const sidebarBg = isMatrix ? 'bg-bg-void/90' : 'bg-white'
   const sidebarBorder = isMatrix ? 'border-matrix-green/15' : 'border-gray-200'
   const logoCls = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const linkCls = isMatrix
@@ -76,14 +76,14 @@ export default function AdminLayout() {
   const linkActiveCls = isMatrix
     ? 'text-matrix-green bg-matrix-green/10 border-r-2 border-matrix-green'
     : 'text-bluepill-accent bg-bluepill-accent/10 border-r-2 border-bluepill-accent'
-  const headerBg = isMatrix ? 'bg-bg-void/80' : 'bg-white/80'
+  const headerBg = isMatrix ? 'bg-bg-void/90' : 'bg-white/80'
   const headerBorder = isMatrix ? 'border-matrix-green/15' : 'border-gray-200'
   const headerTitleCls = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const emailCls = isMatrix ? 'text-matrix-dim' : 'text-gray-400'
   const logoutCls = isMatrix
     ? 'text-matrix-dim hover:text-alert'
     : 'text-gray-400 hover:text-alert'
-  const contentBg = isMatrix ? 'bg-bg-void/85' : 'bg-bluepill-bg'
+  const contentBg = isMatrix ? 'bg-bg-void/90' : 'bg-bluepill-bg'
   const contentText = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
   const hamburgerCls = isMatrix
     ? 'text-matrix-dim hover:text-matrix-green'
@@ -201,20 +201,20 @@ export default function AdminLayout() {
         <header
           className={`flex items-center justify-between border-b px-4 py-3 backdrop-blur-sm sm:px-6 ${headerBorder} ${headerBg}`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <button
               onClick={() => setMobileOpen(true)}
-              className={`lg:hidden ${hamburgerCls}`}
+              className={`shrink-0 lg:hidden ${hamburgerCls}`}
               aria-label="Open sidebar"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <h1 className={`font-mono text-base font-semibold ${headerTitleCls}`}>
+            <h1 className={`truncate font-mono text-base font-semibold ${headerTitleCls}`}>
               {pageTitle}
             </h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-4">
             <span className={`hidden font-mono text-xs sm:inline ${emailCls}`}>
               Signed in as admin
             </span>

@@ -1,10 +1,24 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTheme } from '../../context/ThemeContext'
 import api from '../../lib/api'
+import socket from '../../lib/socket'
 import TerminalWindow from '../ui/TerminalWindow'
 import ProjectModal from '../ui/ProjectModal'
 import TerminalReveal from '../ui/TerminalReveal'
 import { GitHubIcon, ExternalLinkIcon } from '../ui/icons'
+
+function mapProject(p) {
+  return {
+    id: p._id,
+    title: p.title,
+    description: p.description,
+    techStack: p.techStack,
+    thumbnail: p.thumbnailUrl,
+    githubUrl: p.githubUrl,
+    liveUrl: p.liveUrl,
+    featured: p.featured,
+  }
+}
 
 export default function Projects() {
   const { theme } = useTheme()
@@ -19,20 +33,7 @@ export default function Projects() {
     api
       .get('/projects')
       .then((res) => {
-        if (!cancelled) {
-          setProjects(
-            res.data.map((p) => ({
-              id: p._id,
-              title: p.title,
-              description: p.description,
-              techStack: p.techStack,
-              thumbnail: p.thumbnailUrl,
-              githubUrl: p.githubUrl,
-              liveUrl: p.liveUrl,
-              featured: p.featured,
-            })),
-          )
-        }
+        if (!cancelled) setProjects(res.data.map(mapProject))
       })
       .catch(() => {
         if (!cancelled) setError('Failed to load projects.')
@@ -41,6 +42,42 @@ export default function Projects() {
         if (!cancelled) setLoading(false)
       })
     return () => { cancelled = true }
+  }, [])
+
+  useEffect(() => {
+    socket.connect()
+
+    socket.on('projects:created', (p) => {
+      if (p.isVisible) setProjects((prev) => [...prev, mapProject(p)])
+    })
+
+    socket.on('projects:updated', (p) => {
+      setProjects((prev) => {
+        const exists = prev.some((x) => x.id === p._id)
+        if (p.isVisible) {
+          return exists
+            ? prev.map((x) => (x.id === p._id ? mapProject(p) : x))
+            : [...prev, mapProject(p)]
+        }
+        return exists ? prev.filter((x) => x.id !== p._id) : prev
+      })
+    })
+
+    socket.on('projects:deleted', ({ id }) => {
+      setProjects((prev) => prev.filter((x) => x.id !== id))
+    })
+
+    socket.on('projects:reordered', (list) => {
+      setProjects(list.filter((p) => p.isVisible).map(mapProject))
+    })
+
+    return () => {
+      socket.off('projects:created')
+      socket.off('projects:updated')
+      socket.off('projects:deleted')
+      socket.off('projects:reordered')
+      socket.disconnect()
+    }
   }, [])
 
   const closeModal = useCallback(() => setSelected(null), [])
