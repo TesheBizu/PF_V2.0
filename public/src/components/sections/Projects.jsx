@@ -1,72 +1,47 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTheme } from '../../context/ThemeContext'
+import api from '../../lib/api'
 import TerminalWindow from '../ui/TerminalWindow'
 import ProjectModal from '../ui/ProjectModal'
 import TerminalReveal from '../ui/TerminalReveal'
 import { GitHubIcon, ExternalLinkIcon } from '../ui/icons'
 
-const PROJECTS = [
-  {
-    id: 1,
-    title: 'Neon Dashboard',
-    description:
-      'A real-time analytics dashboard with websocket streaming, interactive charts, and a fully themeable UI. Handles thousands of live events per second with smooth virtualized lists and a command-palette for power users.',
-    techStack: ['React', 'TypeScript', 'WebSocket', 'D3', 'Tailwind'],
-    thumbnail: 'https://placehold.co/640x360/0a0e0a/00ff41?text=Neon+Dashboard',
-    githubUrl: 'https://github.com/example/neon-dashboard',
-    liveUrl: 'https://neon-dashboard.example.com',
-    featured: true,
-  },
-  {
-    id: 2,
-    title: 'CRUD API Service',
-    description:
-      'A production-grade REST API with JWT auth, rate limiting, and role-based access control. Includes OpenAPI docs, request validation, and a comprehensive test suite.',
-    techStack: ['Node.js', 'Express', 'MongoDB', 'JWT', 'Jest'],
-    thumbnail: 'https://placehold.co/640x360/0a0e0a/00ff41?text=CRUD+API',
-    githubUrl: 'https://github.com/example/crud-api',
-    liveUrl: 'https://crud-api.example.com',
-    featured: false,
-  },
-  {
-    id: 3,
-    title: 'Portfolio OS',
-    description:
-      'A terminal-inspired portfolio site with a boot sequence, matrix rain background, and theme switching between a dark "redpill" and light "bluepill" mode.',
-    techStack: ['React', 'Vite', 'Framer Motion', 'Tailwind'],
-    thumbnail: 'https://placehold.co/640x360/0a0e0a/00ff41?text=Portfolio+OS',
-    githubUrl: 'https://github.com/example/portfolio-os',
-    liveUrl: 'https://portfolio-os.example.com',
-    featured: true,
-  },
-  {
-    id: 4,
-    title: 'Image Optimizer',
-    description:
-      'A CLI and microservice that converts and compresses images in bulk with smart cropping. Exposes a queue-based worker pool and an S3-compatible storage backend.',
-    techStack: ['Python', 'FastAPI', 'Redis', 'Docker'],
-    thumbnail: 'https://placehold.co/640x360/0a0e0a/00ff41?text=Image+Optimizer',
-    githubUrl: 'https://github.com/example/image-optimizer',
-    liveUrl: 'https://image-optimizer.example.com',
-    featured: false,
-  },
-  {
-    id: 5,
-    title: 'Chat Relay',
-    description:
-      'A low-latency chat application using server-sent events and optimistic UI updates, with presence indicators and markdown message rendering.',
-    techStack: ['Next.js', 'GraphQL', 'PostgreSQL', 'Redis'],
-    thumbnail: 'https://placehold.co/640x360/0a0e0a/00ff41?text=Chat+Relay',
-    githubUrl: 'https://github.com/example/chat-relay',
-    liveUrl: 'https://chat-relay.example.com',
-    featured: false,
-  },
-]
-
 export default function Projects() {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
   const [selected, setSelected] = useState(null)
+  const [projects, setProjects] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let cancelled = false
+    api
+      .get('/projects')
+      .then((res) => {
+        if (!cancelled) {
+          setProjects(
+            res.data.map((p) => ({
+              id: p._id,
+              title: p.title,
+              description: p.description,
+              techStack: p.techStack,
+              thumbnail: p.thumbnailUrl,
+              githubUrl: p.githubUrl,
+              liveUrl: p.liveUrl,
+              featured: p.featured,
+            })),
+          )
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setError('Failed to load projects.')
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => { cancelled = true }
+  }, [])
 
   const closeModal = useCallback(() => setSelected(null), [])
 
@@ -104,7 +79,22 @@ export default function Projects() {
         </p>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {PROJECTS.map((project) => {
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <TerminalWindow title="loading.js">
+                  <div className={`mb-3 aspect-video rounded ${isMatrix ? 'bg-matrix-dim/20' : 'bg-gray-200'}`} />
+                  <div className={`mb-2 h-4 w-3/4 rounded ${isMatrix ? 'bg-matrix-dim/20' : 'bg-gray-200'}`} />
+                  <div className={`h-3 w-full rounded ${isMatrix ? 'bg-matrix-dim/20' : 'bg-gray-200'}`} />
+                </TerminalWindow>
+              </div>
+            ))
+          ) : error ? (
+            <p className={`col-span-full font-mono text-sm ${muted}`}>{error}</p>
+          ) : projects.length === 0 ? (
+            <p className={`col-span-full font-mono text-sm ${muted}`}>No projects to display yet.</p>
+          ) : (
+            projects.map((project) => {
             const filename = `${project.title
               .toLowerCase()
               .replace(/\s+/g, '-')}.js`
@@ -186,7 +176,8 @@ export default function Projects() {
                 </div>
               </div>
             )
-          })}
+          })
+        )}
         </div>
       </div>
 
