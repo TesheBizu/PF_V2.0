@@ -1,5 +1,8 @@
+import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useTheme } from './context/ThemeContext'
+import useBootSequence from './hooks/useBootSequence'
 import MatrixRain from './components/layout/MatrixRain'
 import Navbar from './components/layout/Navbar'
 import InteractiveTerminal from './components/terminal/InteractiveTerminal'
@@ -15,6 +18,21 @@ import Footer from './components/layout/Footer'
 
 function App() {
   const { theme } = useTheme()
+  const { lines, isBooting, skipBoot } = useBootSequence()
+
+  useEffect(() => {
+    if (!isBooting) return
+
+    const skip = () => skipBoot()
+
+    window.addEventListener('keydown', skip)
+    window.addEventListener('click', skip)
+
+    return () => {
+      window.removeEventListener('keydown', skip)
+      window.removeEventListener('click', skip)
+    }
+  }, [isBooting, skipBoot])
 
   const scrimClass =
     theme === 'matrix'
@@ -25,7 +43,17 @@ function App() {
     <>
       <MatrixRain active={theme === 'matrix'} />
 
-      <Navbar />
+      <AnimatePresence>
+        {!isBooting && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            <Navbar />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <InteractiveTerminal />
 
@@ -35,7 +63,7 @@ function App() {
             path="/"
             element={
               <>
-                <Hero />
+                <Hero lines={lines} isBooting={isBooting} />
                 <About />
                 <Skills />
                 <GithubActivity />

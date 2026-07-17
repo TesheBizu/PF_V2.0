@@ -1,9 +1,8 @@
-import { useEffect } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
-import useBootSequence from '../../hooks/useBootSequence'
 import useTypewriter from '../../hooks/useTypewriter'
 import TerminalWindow from '../ui/TerminalWindow'
+import BootCore3D from '../ui/BootCore3D'
 
 const ROLE_TITLES = [
   'Full Stack Developer',
@@ -14,38 +13,43 @@ const ROLE_TITLES = [
 const TAGLINE =
   'Building digital experiences with clean code and creative thinking'
 
-export default function Hero() {
+const BOOT_EXIT = { opacity: 0, scale: 0.96 }
+const BOOT_TRANSITION = { duration: 0.35, ease: 'easeIn' }
+const HERO_ENTER = { opacity: 0, y: 24 }
+const HERO_TRANSITION = { duration: 0.45, ease: 'easeOut' }
+
+export default function Hero({ lines, isBooting }) {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
-  const { lines, isBooting, skipBoot } = useBootSequence()
   const { display: roleText } = useTypewriter(ROLE_TITLES)
   const shouldReduceMotion = useReducedMotion()
 
-  useEffect(() => {
-    if (!isBooting) return
-
-    const skip = () => skipBoot()
-
-    window.addEventListener('keydown', skip)
-    window.addEventListener('click', skip)
-
-    return () => {
-      window.removeEventListener('keydown', skip)
-      window.removeEventListener('click', skip)
-    }
-  }, [isBooting, skipBoot])
-
   return (
     <section id="home" className="flex min-h-screen items-center justify-center px-6">
-      {isBooting ? (
-        <BootScreen lines={lines} isMatrix={isMatrix} />
-      ) : (
-        <ResolvedHero
-          isMatrix={isMatrix}
-          roleText={roleText}
-          shouldReduceMotion={shouldReduceMotion}
-        />
-      )}
+      <AnimatePresence mode="wait">
+        {isBooting ? (
+          <motion.div
+            key="boot"
+            exit={shouldReduceMotion ? { opacity: 0 } : BOOT_EXIT}
+            transition={shouldReduceMotion ? { duration: 0 } : BOOT_TRANSITION}
+          >
+            <BootScreen lines={lines} isMatrix={isMatrix} />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="hero"
+            initial={shouldReduceMotion ? { opacity: 1 } : HERO_ENTER}
+            animate={{ opacity: 1, y: 0 }}
+            transition={shouldReduceMotion ? { duration: 0 } : HERO_TRANSITION}
+          >
+            <ResolvedHero
+              isMatrix={isMatrix}
+              roleText={roleText}
+              shouldReduceMotion={shouldReduceMotion}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
@@ -56,18 +60,21 @@ function BootScreen({ lines, isMatrix }) {
   const hintColor = isMatrix ? 'text-text-primary/40' : 'text-bluepill-text/40'
 
   return (
-    <TerminalWindow title="boot_sequence" className="w-full max-w-2xl">
-      <div className="space-y-1">
-        {lines.map((line, i) => (
-          <div key={i} className={`font-mono text-sm ${lineColor}`}>
-            <span className={promptColor}>$</span> {line}
+    <div className="flex flex-col items-center gap-6">
+      <BootCore3D bootLineCount={lines.length} />
+      <TerminalWindow title="boot_sequence" className="w-full max-w-2xl">
+        <div className="space-y-1">
+          {lines.map((line, i) => (
+            <div key={i} className={`font-mono text-sm ${lineColor}`}>
+              <span className={promptColor}>$</span> {line}
+            </div>
+          ))}
+          <div className={`mt-4 animate-pulse font-xs font-mono ${hintColor}`}>
+            Press any key or click to skip...
           </div>
-        ))}
-        <div className={`mt-4 animate-pulse font-xs font-mono ${hintColor}`}>
-          Press any key or click to skip...
         </div>
-      </div>
-    </TerminalWindow>
+      </TerminalWindow>
+    </div>
   )
 }
 
