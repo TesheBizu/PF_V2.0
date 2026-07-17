@@ -3,6 +3,7 @@ import { useTheme } from '../../context/ThemeContext'
 import useTypewriter from '../../hooks/useTypewriter'
 import TerminalWindow from '../ui/TerminalWindow'
 import BootCore3D from '../ui/BootCore3D'
+import MeshGradientBackground from '../ui/MeshGradientBackground'
 import { GitHubIcon, LinkedInIcon, TwitterIcon } from '../ui/icons'
 
 const ROLE_TITLES = [
@@ -28,11 +29,13 @@ const HERO_TRANSITION = { duration: 0.45, ease: 'easeOut' }
 export default function Hero({ lines, isBooting }) {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
+  const isBluepill = theme === 'bluepill'
   const { display: roleText } = useTypewriter(ROLE_TITLES)
   const shouldReduceMotion = useReducedMotion()
 
   return (
-    <section id="home" className="flex min-h-screen items-center justify-center px-6">
+    <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+      {isBluepill && !isBooting && <MeshGradientBackground />}
       <AnimatePresence mode="wait">
         {isBooting ? (
           <motion.div
@@ -104,12 +107,12 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
     ? 'hover:shadow-[0_0_20px_var(--color-matrix-green)]'
     : 'hover:shadow-[0_0_20px_var(--color-bluepill-accent)]'
   const initialsColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
-  const avatarBg = isMatrix ? 'bg-matrix-dim/30' : 'bg-bluepill-bg/40'
+  const avatarBg = isMatrix ? 'bg-matrix-dim/30' : 'bg-bluepill-bg'
 
   return (
     <div className="flex flex-col-reverse items-center gap-10 sm:flex-row sm:items-center sm:gap-14">
       {/* LEFT: text content */}
-      <div className="flex flex-1 flex-col items-center gap-5 text-center sm:items-start sm:text-left">
+      <div className="relative z-10 flex flex-1 flex-col items-center gap-5 text-center sm:items-start sm:text-left">
         <motion.h1
           className={`font-mono text-4xl font-bold sm:text-6xl ${headingColor}`}
           initial={{ opacity: 0, y: 20 }}
@@ -181,7 +184,7 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
 
       {/* RIGHT: profile photo */}
       <motion.div
-        className="group relative shrink-0"
+        className="group relative z-10 shrink-0"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ ...base, delay: shouldReduceMotion ? 0 : 0.15 }}

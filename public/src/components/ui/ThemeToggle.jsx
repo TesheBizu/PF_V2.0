@@ -34,7 +34,7 @@ export default function ThemeToggle() {
           isMatrix ? 'bluepill' : 'matrix'
         } theme.`}
         onClick={toggleTheme}
-        className={`relative inline-flex items-center gap-1 rounded border px-2 py-1 font-mono text-xs ${borderCls}`}
+        className={`relative inline-flex items-center overflow-hidden rounded border px-2 py-1 font-mono text-xs ${borderCls}`}
       >
         {/* sliding indicator between the two labels */}
         <motion.span
@@ -47,8 +47,8 @@ export default function ThemeToggle() {
               : { type: 'spring', stiffness: 500, damping: 35 }
           }
         />
-        <span className={`relative z-10 ${matrixLabelCls}`}>matrix</span>
-        <span className={`relative z-10 ${bluepillLabelCls}`}>bluepill</span>
+        <span className={`relative z-10 w-14 text-center ${matrixLabelCls}`}>matrix</span>
+        <span className={`relative z-10 w-14 text-center ${bluepillLabelCls}`}>bluepill</span>
       </button>
     </span>
   )
