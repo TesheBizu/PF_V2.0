@@ -31,7 +31,7 @@ router.get('/all', auth, async (_req, res) => {
 // POST /api/projects — protected, create with optional image
 router.post('/', auth, upload.single('thumbnail'), async (req, res) => {
   try {
-    const { title, description, techStack, githubUrl, liveUrl, featured, isVisible, order } = req.body
+    const { title, description, techStack, githubUrl, liveUrl, status, featured, isVisible, order } = req.body
 
     if (!title || !description) {
       return res.status(400).json({ message: 'Title and description are required.' })
@@ -46,6 +46,9 @@ router.post('/', auth, upload.single('thumbnail'), async (req, res) => {
       ? techStack.split(',').map((t) => t.trim()).filter(Boolean)
       : Array.isArray(techStack) ? techStack : []
 
+    const validStatuses = ['active', 'completed', 'archived']
+    const projectStatus = validStatuses.includes(status) ? status : 'completed'
+
     const project = await Project.create({
       title,
       description,
@@ -53,6 +56,7 @@ router.post('/', auth, upload.single('thumbnail'), async (req, res) => {
       thumbnailUrl,
       githubUrl: githubUrl || null,
       liveUrl: liveUrl || null,
+      status: projectStatus,
       featured: featured === 'true' || featured === true,
       isVisible: isVisible === undefined ? true : (isVisible === 'true' || isVisible === true),
       order: Number(order) || 0,
@@ -76,12 +80,16 @@ router.put('/:id', auth, upload.single('thumbnail'), async (req, res) => {
       return res.status(404).json({ message: 'Project not found.' })
     }
 
-    const { title, description, techStack, githubUrl, liveUrl, featured, isVisible, order } = req.body
+    const { title, description, techStack, githubUrl, liveUrl, status, featured, isVisible, order } = req.body
 
     if (title !== undefined) project.title = title
     if (description !== undefined) project.description = description
     if (githubUrl !== undefined) project.githubUrl = githubUrl || null
     if (liveUrl !== undefined) project.liveUrl = liveUrl || null
+    if (status !== undefined) {
+      const validStatuses = ['active', 'completed', 'archived']
+      project.status = validStatuses.includes(status) ? status : 'completed'
+    }
     if (featured !== undefined) project.featured = featured === 'true' || featured === true
     if (isVisible !== undefined) project.isVisible = isVisible === 'true' || isVisible === true
     if (order !== undefined) project.order = Number(order) || 0

@@ -117,6 +117,19 @@ export default function ProjectModal({ project, onClose }) {
             </div>
 
             <div className="p-5">
+              <div className="mb-4 flex items-center gap-3">
+                {project.status && (
+                  <span className={`rounded-full border px-2.5 py-0.5 font-mono text-[10px] ${
+                    project.status === 'active'
+                      ? (isMatrix ? 'border-matrix-green/60 text-matrix-green bg-matrix-green/10' : 'border-emerald-400 text-emerald-700 bg-emerald-50')
+                      : project.status === 'archived'
+                        ? (isMatrix ? 'border-matrix-dim/50 text-matrix-dim/80 bg-matrix-dim/15' : 'border-gray-300 text-gray-500 bg-gray-100')
+                        : (isMatrix ? 'border-bluepill-accent/40 text-bluepill-accent bg-bluepill-accent/10' : 'border-bluepill-accent text-white bg-bluepill-accent')
+                  }`}>
+                    {project.status}
+                  </span>
+                )}
+              </div>
               <img
                 src={project.thumbnail}
                 alt={project.title}

@@ -7,6 +7,7 @@ const projectSchema = new mongoose.Schema({
   thumbnailUrl: { type: String, default: null },
   githubUrl: { type: String, default: null },
   liveUrl: { type: String, default: null },
+  status: { type: String, enum: ['active', 'completed', 'archived'], default: 'completed' },
   featured: { type: Boolean, default: false },
   order: { type: Number, default: 0 },
   isVisible: { type: Boolean, default: true },
