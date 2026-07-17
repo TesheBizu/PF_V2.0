@@ -25,24 +25,8 @@ export default function About() {
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const bioText = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
-
-  // Avatar / photo-frame styling (CSS-only glitch + scanlines)
-  const bracket = isMatrix ? 'border-matrix-green' : 'border-bluepill-accent'
-  const photoBorder = isMatrix ? 'border-matrix-green/60' : 'border-bluepill-accent/60'
-  const glow = isMatrix
-    ? 'group-hover:shadow-[0_0_20px_var(--color-matrix-green)]'
-    : 'group-hover:shadow-[0_0_20px_var(--color-bluepill-accent)]'
-  const glitch = 'group-hover:[animation:glitch-shift_0.4s_steps(2,end)_infinite]'
-  const initialsColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
-  const avatarBg = isMatrix ? 'bg-matrix-dim/30' : 'bg-bluepill-bg/40'
-  const rgbSplit =
-    'group-hover:[text-shadow:2px_0_var(--color-alert),-2px_0_var(--color-bluepill-accent)]'
-  const scanClass = isMatrix
-    ? 'bg-[repeating-linear-gradient(0deg,transparent,transparent_3px,var(--color-matrix-green)_3px,var(--color-matrix-green)_4px)]'
-    : 'bg-[repeating-linear-gradient(0deg,transparent,transparent_3px,var(--color-bluepill-accent)_3px,var(--color-bluepill-accent)_4px)]'
-  const sweep = isMatrix
-    ? 'bg-[linear-gradient(to_bottom,transparent,var(--color-matrix-green),transparent)]'
-    : 'bg-[linear-gradient(to_bottom,transparent,var(--color-bluepill-accent),transparent)]'
+  const border = isMatrix ? 'border-matrix-green/30' : 'border-bluepill-accent/30'
+  const hoverBg = isMatrix ? 'hover:bg-matrix-green/10' : 'hover:bg-bluepill-accent/10'
 
   return (
     <section id='about' className='px-6 py-24'>
@@ -52,33 +36,16 @@ export default function About() {
           <TerminalReveal mode='type' text='about' as='span' />
         </h2>
 
-        <div className='flex flex-col items-center gap-10 md:flex-row md:items-start md:gap-14'>
-          {/* Image / avatar */}
-          <div className='group relative w-56 shrink-0 sm:w-64'>
-            <span className={`absolute left-0 top-0 h-5 w-5 border-l-2 border-t-2 ${bracket}`} />
-            <span className={`absolute right-0 top-0 h-5 w-5 border-r-2 border-t-2 ${bracket}`} />
-            <span className={`absolute left-0 bottom-0 h-5 w-5 border-l-2 border-b-2 ${bracket}`} />
-            <span className={`absolute right-0 bottom-0 h-5 w-5 border-r-2 border-b-2 ${bracket}`} />
-
-            <div
-              className={`relative h-56 w-56 overflow-hidden border-2 transition-shadow duration-300 sm:h-64 sm:w-64 ${photoBorder} ${glow} ${glitch}`}
-            >
-              <div
-                className={`flex h-full w-full items-center justify-center font-data text-6xl font-bold ${initialsColor} ${avatarBg} ${rgbSplit}`}
-              >
-                JD
-              </div>
-              <div className={`pointer-events-none absolute inset-0 opacity-30 ${scanClass}`} />
-              <div className='pointer-events-none absolute inset-0 overflow-hidden opacity-0 group-hover:opacity-100'>
-                <div
-                  className={`absolute inset-x-0 top-0 h-1/4 opacity-50 [animation:scanline_2.5s_linear_infinite] ${sweep}`}
-                />
-              </div>
-            </div>
+        <div className='flex flex-col gap-10 md:flex-row md:gap-14'>
+          {/* LEFT: stats */}
+          <div className='grid w-full grid-cols-2 gap-4 sm:w-2/5 md:order-1'>
+            {STATS.map((s) => (
+              <StatBlock key={s.label} {...s} isMatrix={isMatrix} reduce={reduce} />
+            ))}
           </div>
 
-          {/* Bio terminal */}
-          <div className='w-full flex-1'>
+          {/* RIGHT: bio terminal + buttons */}
+          <div className='w-full flex-1 md:order-2'>
             <TerminalWindow title='about.txt' className='w-full'>
               <div className={`font-mono text-sm ${accent}`}>
                 <span className='opacity-70'>$</span> cat about.txt
@@ -89,14 +56,23 @@ export default function About() {
                 lineClassName={`mt-3 font-sans text-sm leading-relaxed ${bioText}`}
               />
             </TerminalWindow>
-          </div>
-        </div>
 
-        {/* Stats */}
-        <div className='mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4'>
-          {STATS.map((s) => (
-            <StatBlock key={s.label} {...s} isMatrix={isMatrix} reduce={reduce} />
-          ))}
+            <div className='mt-5 flex gap-4'>
+              <a
+                href='#contact'
+                className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
+              >
+                &gt; contact_me
+              </a>
+              <a
+                href='/resume.pdf'
+                download
+                className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
+              >
+                &gt; download_cv
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
