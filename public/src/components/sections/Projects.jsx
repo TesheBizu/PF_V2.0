@@ -24,7 +24,6 @@ export default function Projects() {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [expandedId, setExpandedId] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -84,11 +83,11 @@ export default function Projects() {
 
   const cardBg = isMatrix ? 'bg-bg-void/80 border-matrix-green/15' : 'bg-white border-gray-200'
   const cardHoverGlow = isMatrix
-    ? 'hover:shadow-[0_0_24px_-6px_var(--color-matrix-green)]'
-    : 'hover:shadow-[0_0_24px_-6px_var(--color-bluepill-accent)]'
+    ? 'shadow-[0_0_24px_-6px_var(--color-matrix-green)]'
+    : 'shadow-[0_0_24px_-6px_var(--color-bluepill-accent)]'
   const cardBorderHover = isMatrix
-    ? 'hover:border-matrix-green/40'
-    : 'hover:border-bluepill-accent/40'
+    ? 'border-matrix-green/40'
+    : 'border-bluepill-accent/40'
   const titleColor = isMatrix ? 'text-text-primary' : 'text-gray-900'
   const descColor = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
   const gradientEnd = isMatrix ? 'from-bg-void/80' : 'from-white'
@@ -138,20 +137,12 @@ export default function Projects() {
             <p className={`col-span-full font-mono text-sm ${muted}`}>No projects to display yet.</p>
           ) : (
             projects.map((project, idx) => {
-              const isExpanded = expandedId === project.id
-
-              const handleCardTap = (e) => {
-                if (e.pointerType === 'mouse') return
-                setExpandedId((prev) => (prev === project.id ? null : project.id))
-              }
-
               const indexLabel = `#${String(idx + 1).padStart(3, '0')}`
 
               return (
                 <div
                   key={project.id}
-                  className={`group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1.5 ${cardHoverGlow} ${cardBorderHover} ${cardBg}`}
-                  onPointerUp={handleCardTap}
+                  className={`group relative flex flex-col overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1.5 hover:z-10 ${cardHoverGlow} ${cardBorderHover} ${cardBg}`}
                 >
                   {/* Image area */}
                   <div className="relative aspect-video overflow-hidden">
@@ -182,17 +173,13 @@ export default function Projects() {
                       {project.title}
                     </h3>
 
-                    <p className={`text-xs leading-relaxed transition-all duration-300 ${
-                      isExpanded
-                        ? ''
-                        : `line-clamp-2 group-hover:line-clamp-none`
-                    } ${descColor}`}>
+                    <p className={`text-xs leading-relaxed ${descColor}`}>
                       {project.description}
                     </p>
 
                     {/* Tech stack tags */}
                     <div className="mt-3 flex flex-wrap gap-1.5">
-                      {(isExpanded ? project.techStack : project.techStack.slice(0, 5)).map((t) => (
+                      {project.techStack.map((t) => (
                         <span
                           key={t}
                           className={`rounded border px-2 py-0.5 font-mono text-[10px] ${tagBorder} ${tagText} ${tagBg}`}
@@ -200,11 +187,6 @@ export default function Projects() {
                           {t}
                         </span>
                       ))}
-                      {!isExpanded && project.techStack.length > 5 && (
-                        <span className={`font-mono text-[10px] ${muted}`}>
-                          +{project.techStack.length - 5}
-                        </span>
-                      )}
                     </div>
 
                     {/* Action buttons */}
