@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { Briefcase } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import TerminalReveal from '../ui/TerminalReveal'
@@ -73,33 +73,52 @@ export default function Experience() {
   const reduce = useReducedMotion()
   const isDesktop = useIsDesktop()
 
+  const [activeId, setActiveId] = useState(null)
+  const containerRef = useRef(null)
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setActiveId(null)
+      }
+    }
+    document.addEventListener('pointerdown', handleClickOutside)
+    return () => document.removeEventListener('pointerdown', handleClickOutside)
+  }, [])
+
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
   const muted = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
-
   const lineColor = isMatrix ? 'bg-matrix-green/30' : 'bg-bluepill-accent/30'
-  const connectorColor = isMatrix ? 'bg-matrix-green/25' : 'bg-bluepill-accent/25'
-
-  const cardBg = isMatrix ? 'bg-bg-void/80' : 'bg-white'
-  const cardBorder = isMatrix ? 'border-matrix-green/20' : 'border-gray-200'
-  const cardShadow = isMatrix
-    ? ''
-    : 'shadow-[0_2px_12px_-2px_rgba(0,0,0,0.08)]'
 
   const logoBg = isMatrix ? 'bg-matrix-dim/40' : 'bg-gray-100'
   const logoBorder = isMatrix ? 'border-matrix-green/20' : 'border-gray-200'
   const logoIconColor = isMatrix ? 'text-matrix-green/40' : 'text-gray-400'
 
+  const glowIdle = isMatrix
+    ? 'shadow-[0_0_12px_-3px_var(--color-matrix-green)]'
+    : 'shadow-[0_0_12px_-3px_var(--color-bluepill-accent)]'
+  const glowActive = isMatrix
+    ? 'shadow-[0_0_22px_-2px_var(--color-matrix-green)]'
+    : 'shadow-[0_0_22px_-2px_var(--color-bluepill-accent)]'
+  const glowCurrent = isMatrix
+    ? 'shadow-[0_0_16px_-2px_var(--color-matrix-green)]'
+    : 'shadow-[0_0_16px_-2px_var(--color-bluepill-accent)]'
+  const currentDot = isMatrix ? 'bg-matrix-green' : 'bg-bluepill-accent'
+
+  const cardBg = isMatrix ? 'bg-bg-void/95' : 'bg-white'
+  const cardBorder = isMatrix ? 'border-matrix-green/20' : 'border-gray-200'
+  const cardShadow = isMatrix
+    ? 'shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)]'
+    : 'shadow-[0_4px_24px_-4px_rgba(0,0,0,0.12)]'
   const roleText = isMatrix ? 'text-text-primary' : 'text-gray-900'
   const companyText = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const dateLocText = isMatrix ? 'text-matrix-green/40' : 'text-gray-400'
   const bodyText = isMatrix ? 'text-text-primary/70' : 'text-gray-600'
   const bulletChar = isMatrix ? 'text-matrix-green/50' : 'text-bluepill-accent/50'
-
   const currentBadge = isMatrix
     ? 'border-matrix-green/50 bg-matrix-green/10 text-matrix-green'
     : 'border-bluepill-accent/50 bg-bluepill-accent/10 text-bluepill-accent-dark'
-  const currentDot = isMatrix ? 'bg-matrix-green' : 'bg-bluepill-accent'
 
   return (
     <section id="experience" className="px-6 py-24">
@@ -112,18 +131,18 @@ export default function Experience() {
           <span className="opacity-60">$</span> listing career timeline...
         </p>
 
-        {/* ── timeline container ── */}
-        <div className="relative">
-          {/* vertical center line — always runs full height behind markers */}
+        {/* ── timeline ── */}
+        <div ref={containerRef} className="relative mx-auto max-w-3xl">
+          {/* vertical line */}
           <span
             className={`absolute left-[23px] top-0 bottom-0 w-px md:left-1/2 md:-translate-x-px ${lineColor}`}
             aria-hidden="true"
           />
 
-          {/* entries — single sequential list, NOT a 2-col grid */}
           {EXPERIENCE.map((item, index) => {
             const isLeft = index % 2 === 0
             const isCurrent = item.endDate == null
+            const isActive = activeId === item.id
             const dateRange = `${item.startDate} — ${
               item.endDate ?? 'Present'
             }`
@@ -131,12 +150,9 @@ export default function Experience() {
               ? `${dateRange}  •  ${item.location}`
               : dateRange
 
-            const initial = reduce
-              ? { opacity: 1 }
-              : isDesktop
-                ? { opacity: 0, x: isLeft ? -40 : 40 }
-                : { opacity: 0, y: 30 }
-            const whileInView = reduce ? {} : { opacity: 1, x: 0, y: 0 }
+            function activate() {
+              setActiveId((prev) => (prev === item.id ? null : item.id))
+            }
 
             const logoContent = item.logoUrl ? (
               <img
@@ -151,113 +167,122 @@ export default function Experience() {
             return (
               <motion.div
                 key={item.id}
-                initial={initial}
-                whileInView={whileInView}
-                viewport={{ once: true, amount: 0.2 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="relative mb-12 md:mb-16"
+                initial={reduce ? { opacity: 1 } : { opacity: 0, y: 24 }}
+                whileInView={reduce ? {} : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.4, delay: index * 0.12, ease: 'easeOut' }}
+                className="relative py-12 md:py-16"
               >
-                {/* ── logo badge marker — positioned at the center line ── */}
-                <div
-                  className={`absolute left-[23px] top-3 z-10 -translate-x-1/2 md:left-1/2`}
+                {/* ── marker ── */}
+                <button
+                  type="button"
+                  onClick={activate}
+                  onMouseEnter={() => {
+                    if (isDesktop) setActiveId(item.id)
+                  }}
+                  onMouseLeave={() => {
+                    if (isDesktop) setActiveId(null)
+                  }}
+                  className={`absolute left-[23px] top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 md:left-1/2 cursor-pointer rounded-full border-2 transition-shadow duration-300 focus:outline-none ${
+                    logoBg
+                  } ${logoBorder} ${
+                    isActive
+                      ? glowActive
+                      : isCurrent
+                        ? glowCurrent
+                        : glowIdle
+                  }`}
+                  aria-label={item.role + ' at ' + item.company}
                 >
-                  {isCurrent && (
+                  {isCurrent && !reduce && (
                     <span
                       className={`absolute -inset-1.5 animate-ping rounded-full opacity-30 ${currentDot}`}
                       aria-hidden="true"
                     />
                   )}
-                  <div
-                    className={`relative flex h-12 w-12 items-center justify-center rounded-full border-2 ${logoBg} ${logoBorder} ${
-                      isCurrent
-                        ? isMatrix
-                          ? 'shadow-[0_0_12px_var(--color-matrix-green)]'
-                          : 'shadow-[0_0_12px_var(--color-bluepill-accent)]'
-                        : ''
-                    }`}
-                  >
+                  <span className="flex h-12 w-12 items-center justify-center">
                     {logoContent}
-                  </div>
-                </div>
+                  </span>
+                </button>
 
-                {/* ── connector line — horizontal stub from marker to card ── */}
-                <span
-                  className={`absolute top-[25px] hidden h-px w-6 ${connectorColor} md:block ${
-                    isLeft
-                      ? 'right-[calc(50%+24px)]'
-                      : 'left-[calc(50%+24px)]'
-                  }`}
-                  aria-hidden="true"
-                />
-
-                {/* ── card ── */}
-                <div
-                  className={`pl-14 md:pl-0 md:w-[calc(50%-3rem)] ${
-                    isLeft ? 'md:mr-auto' : 'md:ml-auto'
-                  }`}
-                >
-                  <div
-                    className={`rounded-xl border p-5 backdrop-blur-sm ${cardBg} ${cardBorder} ${cardShadow}`}
-                  >
-                    <h3
-                      className={`font-mono text-sm font-bold leading-snug ${roleText}`}
+                {/* ── detail card (appears on hover / tap) ── */}
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.div
+                      initial={reduce ? { opacity: 0 } : { opacity: 0, x: isLeft ? 16 : -16 }}
+                      animate={reduce ? { opacity: 1 } : { opacity: 1, x: 0 }}
+                      exit={reduce ? { opacity: 0 } : { opacity: 0, x: isLeft ? 12 : -12 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                      className={`absolute top-1/2 z-10 w-72 -translate-y-1/2 pl-14 md:pl-0 ${
+                        isLeft
+                          ? 'left-[48px] md:left-auto md:right-[calc(50%+36px)]'
+                          : 'left-[48px] md:left-[calc(50%+36px)]'
+                      }`}
                     >
-                      {item.role}
-                    </h3>
-
-                    <p className="mt-0.5 mb-2">
-                      {item.companyUrl ? (
-                        <a
-                          href={item.companyUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={`font-mono text-xs font-semibold transition-opacity hover:opacity-80 ${companyText}`}
-                        >
-                          {item.company}
-                        </a>
-                      ) : (
-                        <span
-                          className={`font-mono text-xs font-semibold ${companyText}`}
-                        >
-                          {item.company}
-                        </span>
-                      )}
-                    </p>
-
-                    <div className="mb-3 flex flex-wrap items-center gap-2">
-                      <span
-                        className={`font-mono text-[11px] ${dateLocText}`}
+                      <div
+                        className={`rounded-xl border p-4 backdrop-blur-sm ${cardBg} ${cardBorder} ${cardShadow}`}
                       >
-                        {dateLocation}
-                      </span>
-                      {isCurrent && (
-                        <span
-                          className={`inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wide ${currentBadge}`}
+                        <h3
+                          className={`font-mono text-sm font-bold leading-snug ${roleText}`}
                         >
-                          <span
-                            className={`inline-block h-1.5 w-1.5 rounded-full ${currentDot} animate-pulse`}
-                          />
-                          Current
-                        </span>
-                      )}
-                    </div>
+                          {item.role}
+                        </h3>
 
-                    <ul
-                      className={`space-y-1 text-xs leading-relaxed ${bodyText}`}
-                    >
-                      {item.description.map((point, i) => (
-                        <li key={i} className="flex gap-2">
+                        <p className="mt-0.5 mb-2">
+                          {item.companyUrl ? (
+                            <a
+                              href={item.companyUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={`font-mono text-xs font-semibold transition-opacity hover:opacity-80 ${companyText}`}
+                            >
+                              {item.company}
+                            </a>
+                          ) : (
+                            <span
+                              className={`font-mono text-xs font-semibold ${companyText}`}
+                            >
+                              {item.company}
+                            </span>
+                          )}
+                        </p>
+
+                        <div className="mb-2.5 flex flex-wrap items-center gap-2">
                           <span
-                            className={`mt-px select-none ${bulletChar}`}
+                            className={`font-mono text-[11px] ${dateLocText}`}
                           >
-                            &gt;
+                            {dateLocation}
                           </span>
-                          <span>{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+                          {isCurrent && (
+                            <span
+                              className={`inline-flex items-center gap-1.5 rounded border px-1.5 py-0.5 text-[10px] uppercase tracking-wide ${currentBadge}`}
+                            >
+                              <span
+                                className={`inline-block h-1.5 w-1.5 rounded-full ${currentDot} animate-pulse`}
+                              />
+                              Current
+                            </span>
+                          )}
+                        </div>
+
+                        <ul
+                          className={`space-y-1 text-xs leading-relaxed ${bodyText}`}
+                        >
+                          {item.description.map((point, i) => (
+                            <li key={i} className="flex gap-2">
+                              <span
+                                className={`mt-px select-none ${bulletChar}`}
+                              >
+                                &gt;
+                              </span>
+                              <span>{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.div>
             )
           })}
