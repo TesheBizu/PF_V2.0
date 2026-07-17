@@ -9,6 +9,7 @@ const SPHERE_RADIUS_PX = 180
 const AUTO_ROTATE_SPEED = 0.3
 const DRAG_SENSITIVITY = 0.005
 const DRAG_CLICK_THRESHOLD = 5
+const HOVER_DELAY_MS = 120
 const RESUME_DELAY_MS = 2000
 const CATEGORIES = ['Frontend', 'Backend', 'Database', 'Tools', 'Programming']
 
@@ -86,6 +87,10 @@ function SphereView({ skills, isMatrix }) {
   const resumeRef = useRef(null)
   const [, setTick] = useState(0)
   const [selected, setSelected] = useState(null)
+  const [hoveredId, setHoveredId] = useState(null)
+  const hoverTimerRef = useRef(null)
+  const panelHoveredRef = useRef(false)
+  const lastPtrTypeRef = useRef('mouse')
 
   const basePoints = useMemo(() => fibonacciSphere(skills.length), [skills.length])
 
@@ -96,9 +101,9 @@ function SphereView({ skills, isMatrix }) {
   const muted = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
   const panelBg = isMatrix ? 'bg-bg-void/95' : 'bg-white/95'
   const panelBorder = isMatrix ? 'border-matrix-green/40' : 'border-bluepill-accent/40'
-  const hoverGlow = isMatrix
-    ? 'hover:shadow-[0_0_10px_rgba(0,255,65,0.3)]'
-    : 'hover:shadow-[0_0_10px_rgba(37,99,235,0.3)]'
+  const glowShadow = isMatrix
+    ? '0 0 12px rgba(0,255,65,0.5)'
+    : '0 0 12px rgba(37,99,235,0.5)'
 
   useEffect(() => {
     let rafId
@@ -143,11 +148,21 @@ function SphereView({ skills, isMatrix }) {
   }, [])
 
   useEffect(() => {
-    if (!selected) return
-    const onKey = (e) => { if (e.key === 'Escape') setSelected(null) }
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setSelected(null)
+        setHoveredId(null)
+      }
+    }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [selected])
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+    }
+  }, [])
 
   const projected = skills.map((skill, i) => {
     const b = basePoints[i]
@@ -164,59 +179,99 @@ function SphereView({ skills, isMatrix }) {
     }
   })
 
+  const hoveredPt = hoveredId ? projected.find((pt) => pt._id === hoveredId) ?? null : null
+  const activeSkill = hoveredPt || selected
+
   const onDown = useCallback((e) => {
     draggingRef.current = true
     lastPtrRef.current = { x: e.clientX, y: e.clientY }
     dragDistRef.current = 0
+    lastPtrTypeRef.current = e.pointerType
+    setHoveredId(null)
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current)
+      hoverTimerRef.current = null
+    }
     if (resumeRef.current) clearTimeout(resumeRef.current)
   }, [])
 
-  const onSkillClick = useCallback((skill) => {
+  const onNodeTap = useCallback((skill) => {
+    if (lastPtrTypeRef.current !== 'touch') return
     if (dragDistRef.current > DRAG_CLICK_THRESHOLD) return
     setSelected((prev) => (prev?._id === skill._id ? null : skill))
   }, [])
 
-  const closePanel = useCallback(() => setSelected(null), [])
+  const closePanel = useCallback(() => {
+    setSelected(null)
+    setHoveredId(null)
+  }, [])
 
   return (
     <div
       className="relative mx-auto aspect-square w-full max-w-[500px] touch-none select-none overflow-hidden"
       onPointerDown={onDown}
     >
-      {projected.map((pt) => (
-        <div
-          key={pt._id}
-          role="button"
-          tabIndex={0}
-          className={`absolute left-1/2 top-1/2 flex max-w-[100px] cursor-pointer items-center gap-1 rounded border px-2 py-1 backdrop-blur-sm transition-all hover:!opacity-100 ${hoverGlow}`}
-          style={{
-            transform: `translate(-50%,-50%) translate(${pt.ox}px,${pt.oy}px) scale(${pt.ns})`,
-            opacity: pt.op,
-            zIndex: pt.zi,
-            borderColor: isMatrix ? 'rgba(0,255,65,0.3)' : 'rgba(37,99,235,0.3)',
-            backgroundColor: isMatrix ? 'rgba(10,14,10,0.7)' : 'rgba(255,255,255,0.7)',
-          }}
-          onClick={() => onSkillClick(pt)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSkillClick(pt) }
-          }}
-        >
-          <TechIcon iconName={pt.iconName} conceptIcon={pt.conceptIcon} size={14} className={iconColor} />
-          <span className={`truncate font-mono text-xs ${textColor}`}>{pt.name}</span>
-        </div>
-      ))}
+      {projected.map((pt) => {
+        const isHovered = hoveredId === pt._id
+        return (
+          <div
+            key={pt._id}
+            role="button"
+            tabIndex={0}
+            className={`absolute left-1/2 top-1/2 flex max-w-[120px] cursor-pointer items-center gap-1.5 rounded border px-2.5 py-1.5 backdrop-blur-sm transition-all hover:!opacity-100`}
+            style={{
+              transform: `translate(-50%,-50%) translate(${pt.ox}px,${pt.oy}px) scale(${isHovered ? pt.ns * 1.1 : pt.ns})`,
+              opacity: pt.op,
+              zIndex: pt.zi,
+              borderColor: isMatrix ? 'rgba(0,255,65,0.3)' : 'rgba(37,99,235,0.3)',
+              backgroundColor: isMatrix ? 'rgba(10,14,10,0.7)' : 'rgba(255,255,255,0.7)',
+              boxShadow: isHovered ? glowShadow : undefined,
+            }}
+            onClick={() => onNodeTap(pt)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setSelected((prev) => (prev?._id === pt._id ? null : pt))
+              }
+            }}
+            onPointerEnter={(e) => {
+              if (draggingRef.current || e.pointerType === 'touch') return
+              if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current)
+              hoverTimerRef.current = setTimeout(() => {
+                setHoveredId(pt._id)
+                hoverTimerRef.current = null
+              }, HOVER_DELAY_MS)
+            }}
+            onPointerLeave={() => {
+              if (hoverTimerRef.current) {
+                clearTimeout(hoverTimerRef.current)
+                hoverTimerRef.current = null
+              }
+              hoverTimerRef.current = setTimeout(() => {
+                if (!panelHoveredRef.current) setHoveredId(null)
+                hoverTimerRef.current = null
+              }, HOVER_DELAY_MS)
+            }}
+          >
+            <TechIcon iconName={pt.iconName} conceptIcon={pt.conceptIcon} size={17} className={iconColor} />
+            <span className={`truncate font-mono text-sm ${textColor}`}>{pt.name}</span>
+          </div>
+        )
+      })}
 
       <AnimatePresence>
-        {selected && (
+        {activeSkill && (
           <>
-            <motion.div
-              key="backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-[199] bg-black/30"
-              onClick={closePanel}
-            />
+            {selected && (
+              <motion.div
+                key="backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 z-[199] bg-black/30"
+                onClick={closePanel}
+              />
+            )}
             <motion.div
               key="panel"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -224,6 +279,17 @@ function SphereView({ skills, isMatrix }) {
               exit={{ opacity: 0, scale: 0.9 }}
               className={`absolute left-1/2 top-1/2 z-[200] w-64 -translate-x-1/2 -translate-y-1/2 rounded-lg border p-4 backdrop-blur-md ${panelBg} ${panelBorder}`}
               onClick={(e) => e.stopPropagation()}
+              onPointerEnter={() => {
+                panelHoveredRef.current = true
+                if (hoverTimerRef.current) {
+                  clearTimeout(hoverTimerRef.current)
+                  hoverTimerRef.current = null
+                }
+              }}
+              onPointerLeave={() => {
+                panelHoveredRef.current = false
+                if (!selected) setHoveredId(null)
+              }}
             >
               <button
                 onClick={closePanel}
@@ -233,27 +299,27 @@ function SphereView({ skills, isMatrix }) {
               </button>
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
-                  <TechIcon iconName={selected.iconName} conceptIcon={selected.conceptIcon} size={20} className={iconColor} />
-                  <h3 className={`font-mono text-lg font-bold ${textColor}`}>{selected.name}</h3>
+                  <TechIcon iconName={activeSkill.iconName} conceptIcon={activeSkill.conceptIcon} size={20} className={iconColor} />
+                  <h3 className={`font-mono text-lg font-bold ${textColor}`}>{activeSkill.name}</h3>
                 </div>
-                <p className={`font-mono text-xs ${muted}`}>{selected.category}</p>
+                <p className={`font-mono text-xs ${muted}`}>{activeSkill.category}</p>
                 <div>
                   <div className="mb-1 flex justify-between">
                     <span className={`font-mono text-xs ${textColor}`}>Proficiency</span>
-                    <span className={`font-data text-xs ${textColor}`}>{selected.proficiency}%</span>
+                    <span className={`font-data text-xs ${textColor}`}>{activeSkill.proficiency}%</span>
                   </div>
                   <div className={`h-2 overflow-hidden rounded-full ${trackBg}`}>
                     <motion.div
                       className={`h-full rounded-full ${barColor}`}
                       initial={{ width: '0%' }}
-                      animate={{ width: `${selected.proficiency}%` }}
+                      animate={{ width: `${activeSkill.proficiency}%` }}
                       transition={{ duration: 0.8, ease: 'easeOut' }}
                     />
                   </div>
                 </div>
-                {selected.yearsExperience != null && (
+                {activeSkill.yearsExperience != null && (
                   <p className={`font-mono text-xs ${muted}`}>
-                    Experience: <span className={textColor}>{selected.yearsExperience} years</span>
+                    Experience: <span className={textColor}>{activeSkill.yearsExperience} years</span>
                   </p>
                 )}
               </div>
