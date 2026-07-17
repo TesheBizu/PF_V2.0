@@ -86,6 +86,9 @@ export default function InteractiveTerminal() {
   const panelFrame = isMatrix
     ? 'border-matrix-green/30'
     : 'border-bluepill-accent/30'
+  const terminalBg = isMatrix ? 'bg-bg-void' : 'bg-white'
+  const opaqueOverride = isMatrix ? '!bg-bg-void' : '!bg-white'
+  const glowColor = isMatrix ? 'rgba(0, 255, 65, 0.4)' : 'rgba(37, 99, 235, 0.4)'
 
   const buildCtx = () => ({
     navigate: (id) => {
@@ -226,7 +229,8 @@ export default function InteractiveTerminal() {
           type="button"
           onClick={() => setLaunched(true)}
           aria-label="Open terminal"
-          className={`fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border font-mono text-lg shadow-lg transition-colors ${
+          style={{ '--glow-color': glowColor }}
+          className={`fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border font-mono text-lg shadow-lg transition-colors terminal-glow ${
             isMatrix
               ? 'border-matrix-green/50 bg-bg-void/90 text-matrix-green hover:bg-matrix-green/10'
               : 'border-bluepill-accent/50 bg-white/90 text-bluepill-accent-dark hover:bg-bluepill-accent/10'
@@ -267,7 +271,7 @@ export default function InteractiveTerminal() {
             dragMomentum={false}
             onDragEnd={() => setPos({ x: x.get(), y: y.get() })}
             style={{ x, y, width: size.width, height: size.height }}
-            className={`pointer-events-auto absolute bottom-4 right-4 flex flex-col overflow-hidden rounded-lg border shadow-2xl ${panelFrame}`}
+            className={`pointer-events-auto absolute bottom-4 right-4 flex flex-col overflow-hidden rounded-lg border shadow-2xl ${panelFrame} ${terminalBg}`}
           >
             <TerminalWindow
               title="visitor@portfolio: ~"
@@ -275,7 +279,7 @@ export default function InteractiveTerminal() {
               onMinimize={() => setMinimized(true)}
               onClose={() => setLaunched(false)}
               onTitlePointerDown={(e) => dragControls.start(e)}
-              className="!max-w-none !rounded-none !border-0 !bg-transparent flex h-full flex-col"
+              className={`!max-w-none !rounded-none !border-0 ${opaqueOverride} flex h-full flex-col`}
             >
               {terminalBody}
             </TerminalWindow>
@@ -299,14 +303,14 @@ export default function InteractiveTerminal() {
         <div
           role="region"
           aria-label="Interactive terminal"
-          className={`fixed inset-x-0 bottom-0 z-50 flex h-[50vh] w-full flex-col overflow-hidden rounded-t-xl border-t shadow-2xl ${panelFrame}`}
+          className={`fixed inset-x-0 bottom-0 z-50 flex h-[50vh] w-full flex-col overflow-hidden rounded-t-xl border-t shadow-2xl ${panelFrame} ${terminalBg}`}
         >
           <TerminalWindow
             title="visitor@portfolio: ~"
             fill
             onMinimize={() => setMinimized(true)}
             onClose={() => setLaunched(false)}
-            className="!max-w-none !rounded-none !border-0 !bg-transparent flex h-full flex-col"
+            className={`!max-w-none !rounded-none !border-0 ${opaqueOverride} flex h-full flex-col`}
           >
             {terminalBody}
           </TerminalWindow>

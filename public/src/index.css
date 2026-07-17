@@ -102,11 +102,44 @@ html.bluepill ::selection {
   animation: cursor-blink 1s step-end infinite;
 }
 
+/* ── terminal glow ─────────────────────────────────────────────── */
+
+@keyframes terminal-glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px var(--glow-color),
+      0 0 10px var(--glow-color);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow:
+      0 0 30px var(--glow-color),
+      0 0 15px var(--glow-color);
+    filter: brightness(1.1);
+  }
+}
+
+.terminal-glow {
+  animation: terminal-glow-pulse 2.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .status-dot {
     animation: none;
   }
   .cursor-blink {
     animation: none;
+  }
+  .terminal-glow {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-glow {
+    box-shadow:
+      0 0 25px var(--glow-color),
+      0 0 12px var(--glow-color);
   }
 }

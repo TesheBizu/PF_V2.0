@@ -3,13 +3,13 @@ import { useTheme } from '../../context/ThemeContext'
 import ThemeToggle from '../ui/ThemeToggle'
 
 const NAV_ITEMS = [
-  { label: '~/home', href: '#home' },
-  { label: 'whoami', href: '#about' },
-  { label: 'skills --list', href: '#skills' },
-  { label: 'ls projects/', href: '#projects' },
-  { label: 'git log', href: '#experience' },
-  { label: 'cat reviews.log', href: '#testimonials' },
-  { label: './connect.sh', href: '#contact' },
+  { label: 'Home', href: '#home' },
+  { label: 'About', href: '#about' },
+  { label: 'Skills', href: '#skills' },
+  { label: 'Projects', href: '#projects' },
+  { label: 'Experience', href: '#experience' },
+  { label: 'Testimonials', href: '#testimonials' },
+  { label: 'Contact', href: '#contact' },
 ]
 
 const SECTION_IDS = NAV_ITEMS.map((item) => item.href.slice(1))
