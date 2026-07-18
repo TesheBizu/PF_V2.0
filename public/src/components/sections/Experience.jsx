@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
-import { Briefcase, GraduationCap, BookOpen } from 'lucide-react'
+import { Briefcase, GraduationCap, BookOpen, ExternalLink } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import api from '../../lib/api'
 import socket from '../../lib/socket'
@@ -111,7 +111,10 @@ export default function Experience() {
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeId, setActiveId] = useState(null)
+  const [clickedId, setClickedId] = useState(null)
   const containerRef = useRef(null)
+  const isHoveringCardRef = useRef(false)
+  const markerLeaveTimerRef = useRef(null)
 
   useEffect(() => {
     let cancelled = false
@@ -165,8 +168,12 @@ export default function Experience() {
 
   useEffect(() => {
     function handleClickOutside(e) {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+      if (!containerRef.current) return
+      const isMarker = e.target.closest('button[aria-label]')
+      const isCard = e.target.closest('[data-detail-card]')
+      if (!isMarker && !isCard) {
         setActiveId(null)
+        setClickedId(null)
       }
     }
     document.addEventListener('pointerdown', handleClickOutside)
@@ -250,7 +257,13 @@ export default function Experience() {
               : dateRange
 
             function activate() {
-              setActiveId((prev) => (prev === item._id ? null : item._id))
+              if (activeId === item._id) {
+                setActiveId(null)
+                setClickedId(null)
+              } else {
+                setActiveId(item._id)
+                setClickedId(item._id)
+              }
             }
 
             const logoContent = item.logoUrl ? (
@@ -276,10 +289,17 @@ export default function Experience() {
                   type="button"
                   onClick={activate}
                   onMouseEnter={() => {
-                    if (isDesktop) setActiveId(item._id)
+                    if (isDesktop && !clickedId) {
+                      clearTimeout(markerLeaveTimerRef.current)
+                      setActiveId(item._id)
+                    }
                   }}
                   onMouseLeave={() => {
-                    if (isDesktop) setActiveId(null)
+                    if (isDesktop && !clickedId) {
+                      markerLeaveTimerRef.current = setTimeout(() => {
+                        if (!isHoveringCardRef.current) setActiveId(null)
+                      }, 80)
+                    }
                   }}
                   className={`absolute left-[23px] top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 md:left-1/2 cursor-pointer rounded-full border-2 transition-shadow duration-300 focus:outline-none ${
                     logoBg
@@ -310,6 +330,19 @@ export default function Experience() {
                       animate={reduce ? { opacity: 1 } : { opacity: 1, x: 0 }}
                       exit={reduce ? { opacity: 0 } : { opacity: 0, x: isLeft ? 12 : -12 }}
                       transition={{ duration: 0.2, ease: 'easeOut' }}
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onMouseEnter={() => {
+                        if (isDesktop && !clickedId) {
+                          isHoveringCardRef.current = true
+                          clearTimeout(markerLeaveTimerRef.current)
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        if (isDesktop && !clickedId) {
+                          isHoveringCardRef.current = false
+                          setActiveId(null)
+                        }
+                      }}
                       className={`absolute top-1/2 z-10 w-72 -translate-y-1/2 pl-14 md:pl-0 ${
                         isLeft
                           ? 'left-[48px] md:left-auto md:right-[calc(50%+36px)]'
@@ -317,6 +350,7 @@ export default function Experience() {
                       }`}
                     >
                       <div
+                        data-detail-card
                         className={`rounded-xl border p-4 backdrop-blur-sm ${cardBg} ${cardBorder} ${cardShadow}`}
                       >
                         <h3
@@ -330,10 +364,12 @@ export default function Experience() {
                             <a
                               href={item.companyUrl}
                               target="_blank"
-                              rel="noreferrer"
-                              className={`font-mono text-xs font-semibold transition-opacity hover:opacity-80 ${companyText}`}
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className={`inline-flex items-center gap-1 font-mono text-xs font-semibold transition-colors hover:underline ${companyText}`}
                             >
                               {item.company}
+                              <ExternalLink className="h-3 w-3 opacity-50" />
                             </a>
                           ) : (
                             <span
