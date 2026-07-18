@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { ChevronDown } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import useTypewriter from '../../hooks/useTypewriter'
 import TerminalWindow from '../ui/TerminalWindow'
@@ -33,9 +35,51 @@ export default function Hero({ lines, isBooting }) {
   const { display: roleText } = useTypewriter(ROLE_TITLES)
   const shouldReduceMotion = useReducedMotion()
 
+  const [showScroll, setShowScroll] = useState(false)
+
+  useEffect(() => {
+    if (isBooting) {
+      setShowScroll(false)
+      return
+    }
+    const onScroll = () => {
+      setShowScroll(window.scrollY < window.innerHeight * 0.85)
+    }
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [isBooting])
+
+  const scrollColor = isMatrix ? 'text-matrix-green/50' : 'text-bluepill-accent/50'
+  const scrollHover = isMatrix ? 'hover:text-matrix-green' : 'hover:text-bluepill-accent'
+
   return (
     <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
       {isBluepill && !isBooting && <MeshGradientBackground />}
+
+      {/* scroll indicator */}
+      <AnimatePresence>
+        {showScroll && (
+          <motion.button
+            key="scroll-indicator"
+            initial={{ opacity: 0 }}
+            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: [0, 6, 0] }}
+            exit={{ opacity: 0 }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { opacity: { duration: 0.4 }, y: { duration: 1.8, repeat: Infinity, ease: 'easeInOut' } }
+            }
+            onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            className={`absolute bottom-8 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1 cursor-pointer transition-colors ${scrollColor} ${scrollHover}`}
+            aria-label="Scroll to about section"
+          >
+            <span className="font-mono text-xs tracking-wider">&gt; scroll_</span>
+            <ChevronDown className="h-5 w-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         {isBooting ? (
           <motion.div

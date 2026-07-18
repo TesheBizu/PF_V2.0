@@ -35,7 +35,7 @@ export default function MatrixRain({ active = true }) {
     const resize = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
-      const cols = Math.floor(canvas.width / COLUMN_SPACING)
+      const cols = Math.ceil(canvas.width / COLUMN_SPACING) + 1
       const old = columnsRef.current
       columnsRef.current = Array.from({ length: cols }, (_, i) =>
         old[i] !== undefined
