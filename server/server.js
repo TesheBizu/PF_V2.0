@@ -13,6 +13,7 @@ import projectsRouter from './routes/projects.js'
 import skillsRouter from './routes/skills.js'
 import experienceRouter from './routes/experience.js'
 import uploadRouter from './routes/upload.js'
+import testimonialsRouter from './routes/testimonials.js'
 
 dotenv.config()
 
@@ -58,6 +59,7 @@ app.use('/api/experience', experienceRouter)
 app.use('/api/upload', uploadRouter)
 app.use('/api/contact', contactRouter)
 app.use('/api/github', githubRouter)
+app.use('/api/testimonials', testimonialsRouter)
 
 const start = async () => {
   try {

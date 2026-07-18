@@ -1,66 +1,13 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { motion, useInView, useReducedMotion } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 import { LinkedInIcon } from '../ui/icons'
+import api from '../../lib/api'
+import socket from '../../lib/socket'
 
-const TESTIMONIALS = [
-  {
-    id: 1,
-    name: 'Mara Voss',
-    role: 'Engineering Manager',
-    company: 'Nexus Labs',
-    quote:
-      'One of the most reliable frontend engineers I have worked with. Ships fast, communicates clearly, and cares about the details most people miss.',
-    photo: 'https://placehold.co/96x96/0a0e0a/00ff41?text=MV',
-    linkedinUrl: 'https://linkedin.com/in/example-mara',
-  },
-  {
-    id: 2,
-    name: 'Devin Park',
-    role: 'Product Lead',
-    company: 'ByteForge',
-    quote:
-      'Turned a messy backlog into a polished product. Our design system and theming work is basically their brainchild.',
-    photo: 'https://placehold.co/96x96/0a0e0a/00ff41?text=DP',
-    linkedinUrl: 'https://linkedin.com/in/example-devin',
-  },
-  {
-    id: 3,
-    name: 'Aiko Tanaka',
-    role: 'CTO',
-    company: 'OpenSource Collective',
-    quote:
-      'A thoughtful open-source contributor. Reviews are sharp, docs are great, and the community trusts their judgment.',
-    photo: 'https://placehold.co/96x96/0a0e0a/00ff41?text=AT',
-    linkedinUrl: null,
-  },
-  {
-    id: 4,
-    name: 'Leo Marsh',
-    role: 'Founder',
-    company: 'Indie Startup',
-    quote:
-      'Hired them for a two-week sprint and we shipped a month of work. Genuinely one of the best hires I have made.',
-    photo: 'https://placehold.co/96x96/0a0e0a/00ff41?text=LM',
-    linkedinUrl: 'https://linkedin.com/in/example-leo',
-  },
-  {
-    id: 5,
-    name: 'Sofia Reyes',
-    role: 'Design Director',
-    company: "Studio P'er",
-    quote:
-      'Rare to find an engineer who gets visual hierarchy instinctively. Our collaboration made the whole product feel intentional.',
-    photo: 'https://placehold.co/96x96/0a0e0a/00ff41?text=SR',
-    linkedinUrl: null,
-  },
-]
+const FALLBACK = []
 
 const AUTOPLAY_MS = 2000
-
-const n = TESTIMONIALS.length
-// Cloned ends enable seamless infinite looping: [last, ...all, first]
-const LOOP = [TESTIMONIALS[n - 1], ...TESTIMONIALS, TESTIMONIALS[0]]
 
 export default function Testimonials() {
   const { theme } = useTheme()
@@ -71,7 +18,21 @@ export default function Testimonials() {
   const trackRef = useRef(null)
   const cardRef = useRef(null)
 
-  // Single source of truth: index into LOOP (1..n are the real cards, 0 and n+1 are clones)
+  const [testimonials, setTestimonials] = useState(FALLBACK)
+  const [loading, setLoading] = useState(true)
+
+  const n = testimonials.length
+  const useClones = n >= 3
+
+  // Build an infinite-loop array only when there are enough items to justify it;
+  // fewer than 3 items renders a simple linear list because cloned ends would
+  // be visible in the viewport and create spurious visual duplicates.
+  const LOOP = useMemo(() => {
+    if (n === 0) return []
+    if (!useClones) return testimonials
+    return [testimonials[n - 1], ...testimonials, testimonials[0]]
+  }, [testimonials, n, useClones])
+
   const [index, setIndex] = useState(1)
   const [cardW, setCardW] = useState(0)
   const [gap, setGap] = useState(16)
@@ -81,10 +42,69 @@ export default function Testimonials() {
   const resumeTimer = useRef(null)
   const inView = useInView(sectionRef, { amount: 0.3 })
 
-  // Real card index shown (0..n-1) for dots / aria
-  const active = ((index - 1) % n + n) % n
+  // Clamp index when list shrinks or grows
+  useEffect(() => {
+    if (n === 0) return
+    const uc = n >= 3
+    setIndex((prev) => {
+      if (uc) {
+        if (prev < 1) return 1
+        if (prev > n) return n
+      } else {
+        if (prev < 0) return 0
+        if (prev > n - 1) return n - 1
+      }
+      return prev
+    })
+  }, [n])
 
-  // Measure card width + gap so the translate is exact at every breakpoint
+  const active = n > 0 ? (useClones ? ((index - 1) % n + n) % n : index) : 0
+
+  // Fetch testimonials
+  useEffect(() => {
+    setLoading(true)
+    api
+      .get('/testimonials')
+      .then((res) => setTestimonials(res.data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  // Socket.IO live updates
+  useEffect(() => {
+    socket.connect()
+
+    socket.on('testimonials:created', (t) => {
+      setTestimonials((prev) => {
+        if (prev.some((x) => x._id === t._id)) return prev
+        return [...prev, t]
+      })
+    })
+
+    socket.on('testimonials:updated', (t) => {
+      setTestimonials((prev) =>
+        prev.map((x) => (x._id === t._id ? t : x)),
+      )
+    })
+
+    socket.on('testimonials:deleted', ({ id }) => {
+      setTestimonials((prev) => prev.filter((x) => x._id !== id))
+    })
+
+    socket.on('testimonials:reordered', (list) => {
+      setTestimonials(list)
+    })
+
+    return () => {
+      socket.off('testimonials:created')
+      socket.off('testimonials:updated')
+      socket.off('testimonials:deleted')
+      socket.off('testimonials:reordered')
+      socket.disconnect()
+    }
+  }, [])
+
+  // Measure card width + gap
   useLayoutEffect(() => {
     const measure = () => {
       const track = trackRef.current
@@ -103,31 +123,31 @@ export default function Testimonials() {
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [])
+  }, [testimonials])
 
   const step = cardW + gap
   const offset = -index * step
 
-  // Navigation: the ONLY way index changes. Functional update => no stale closures.
-  // Clamped to the cloned range so rapid clicks can't overshoot past the ends.
   const go = useCallback((dir) => {
     setAnimate(true)
     setIndex((prev) => {
+      const uc = n >= 3
+      const maxIdx = uc ? n + 1 : n - 1
       const next = prev + dir
-      if (next > n + 1) return n + 1
+      if (next > maxIdx) return maxIdx
       if (next < 0) return 0
       return next
     })
-  }, [])
+  }, [n])
 
   const goRef = useRef(go)
   useEffect(() => {
     goRef.current = go
   }, [go])
 
-  // Seamless wrap: once we land on a clone, jump back to the real card with no animation.
-  // Driven by an effect (not transitionend) so it also works under reduced motion.
+  // Seamless wrap — only relevant when clones are used (n >= 3)
   useEffect(() => {
+    if (n < 3 || n === 0) return
     if (index !== n + 1 && index !== 0) return
     const t = setTimeout(
       () => {
@@ -137,23 +157,22 @@ export default function Testimonials() {
       reduce ? 0 : 460,
     )
     return () => clearTimeout(t)
-  }, [index, reduce])
+  }, [index, n, reduce])
 
-  // Dots jump straight to a real card (LOOP position = i + 1)
   const jumpTo = useCallback((i) => {
     setAnimate(true)
-    setIndex(i + 1)
-  }, [])
+    setIndex(useClones ? i + 1 : i)
+  }, [useClones])
 
-  // Auto-advance every AUTOPLAY_MS, paused on hover / touch-drag / off-screen
+  // Auto-advance
   useEffect(() => {
-    if (reduce) return
+    if (reduce || n === 0) return
     const id = setInterval(() => {
       if (pausedRef.current || !inView) return
       goRef.current(1)
     }, AUTOPLAY_MS)
     return () => clearInterval(id)
-  }, [reduce, inView])
+  }, [reduce, inView, n])
 
   const pause = useCallback(() => {
     pausedRef.current = true
@@ -188,6 +207,8 @@ export default function Testimonials() {
     ? 'text-matrix-green/70 hover:text-matrix-green'
     : 'text-bluepill-accent-dark/70 hover:text-bluepill-accent-dark'
 
+  if (n === 0 && !loading) return null
+
   return (
     <section
       ref={sectionRef}
@@ -206,130 +227,135 @@ export default function Testimonials() {
           <span className="opacity-60">$</span> decrypting peer reviews...
         </p>
 
-        <div
-          className="relative"
-          onTouchStart={() => {
-            pause()
-            resumeSoon()
-          }}
-          onMouseDown={() => {
-            pause()
-            resumeSoon()
-          }}
-          onWheel={() => {
-            pause()
-            resumeSoon()
-          }}
-        >
-          {/* navigation arrows */}
-          <div className="mb-4 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => go(-1)}
-              aria-label="Previous testimonial"
-              className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
-            >
-              &lt;
-            </button>
-            <button
-              type="button"
-              onClick={() => go(1)}
-              aria-label="Next testimonial"
-              className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
-            >
-              &gt;
-            </button>
-          </div>
+        {loading ? (
+          <p className={`font-mono text-sm ${muted}`}>{'> loading testimonials...'}</p>
+        ) : (
+          <div
+            className="relative"
+            onTouchStart={() => {
+              pause()
+              resumeSoon()
+            }}
+            onMouseDown={() => {
+              pause()
+              resumeSoon()
+            }}
+            onWheel={() => {
+              pause()
+              resumeSoon()
+            }}
+          >
+            {/* navigation arrows */}
+            <div className="mb-4 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => go(-1)}
+                aria-label="Previous testimonial"
+                className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
+              >
+                &lt;
+              </button>
+              <button
+                type="button"
+                onClick={() => go(1)}
+                aria-label="Next testimonial"
+                className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
+              >
+                &gt;
+              </button>
+            </div>
 
-          {/* viewport: strictly clips the row to the section width */}
-          <div className="overflow-hidden">
-            <div
-              ref={trackRef}
-              className="flex flex-nowrap gap-4 will-change-transform"
-              style={{
-                transform: `translateX(${offset}px)`,
-                transition: animate && !reduce ? 'transform 450ms ease' : 'none',
-              }}
-            >
-              {LOOP.map((t, idx) => {
-                const fullText = `${t.role}${t.company ? ` @ ${t.company}` : ''}`
-                return (
-                  <article
-                    key={`${t.id}-${idx}`}
-                    ref={idx === 0 ? cardRef : undefined}
-                    className={`flex w-full shrink-0 flex-col rounded-lg border p-6 font-mono backdrop-blur-sm sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] ${cardBox}`}
-                  >
-                    <span
-                      className={`mb-3 block text-4xl leading-none ${markColor}`}
-                      aria-hidden="true"
+            {/* viewport */}
+            <div className="overflow-hidden">
+              <div
+                ref={trackRef}
+                className="flex flex-nowrap gap-4 will-change-transform"
+                style={{
+                  transform: `translateX(${offset}px)`,
+                  transition: animate && !reduce ? 'transform 450ms ease' : 'none',
+                }}
+              >
+                {LOOP.map((t, idx) => {
+                  const fullText = `${t.role}${t.company ? ` @ ${t.company}` : ''}`
+                  const photo = t.photoUrl || `https://placehold.co/96x96/0a0e0a/00ff41?text=${encodeURIComponent(t.name.split(' ').map(w => w[0]).join(''))}`
+                  return (
+                    <article
+                      key={`${t._id}-${idx}`}
+                      ref={idx === 0 ? cardRef : undefined}
+                      className={`flex w-full shrink-0 flex-col rounded-lg border p-6 font-mono backdrop-blur-sm sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] ${cardBox}`}
                     >
-                      &ldquo;
-                    </span>
+                      <span
+                        className={`mb-3 block text-4xl leading-none ${markColor}`}
+                        aria-hidden="true"
+                      >
+                        &ldquo;
+                      </span>
 
-                    <motion.blockquote
-                      initial={reduce ? { opacity: 1 } : { opacity: 0, filter: 'blur(6px)' }}
-                      whileInView={reduce ? {} : { opacity: 1, filter: 'blur(0px)' }}
-                      viewport={{ once: true, amount: 0.6 }}
-                      transition={{ duration: 0.5, ease: 'easeOut' }}
-                      className={`flex-1 text-sm leading-relaxed ${quoteColor}`}
-                    >
-                      {t.quote}
-                    </motion.blockquote>
+                      <motion.blockquote
+                        initial={reduce ? { opacity: 1 } : { opacity: 0, filter: 'blur(6px)' }}
+                        whileInView={reduce ? {} : { opacity: 1, filter: 'blur(0px)' }}
+                        viewport={{ once: true, amount: 0.6 }}
+                        transition={{ duration: 0.5, ease: 'easeOut' }}
+                        className={`flex-1 text-sm leading-relaxed ${quoteColor}`}
+                      >
+                        {t.quote}
+                      </motion.blockquote>
 
-                    <div className="mt-5 flex items-center gap-3">
-                      <img
-                        src={t.photo}
-                        alt={t.name}
-                        className={`h-12 w-12 shrink-0 rounded-full border-2 object-cover ${ring}`}
-                      />
-                      <div className="min-w-0">
-                        <p
-                          className={`truncate text-sm font-semibold ${nameColor}`}
-                          title={t.name}
-                        >
-                          {t.name}
-                        </p>
-                        <p
-                          className={`truncate text-xs ${roleColor}`}
-                          title={fullText}
-                        >
-                          {fullText}
-                        </p>
+                      <div className="mt-5 flex items-center gap-3">
+                        <img
+                          src={photo}
+                          alt={t.name}
+                          className={`h-12 w-12 shrink-0 rounded-full border-2 object-cover ${ring}`}
+                        />
+                        <div className="min-w-0">
+                          <p
+                            className={`truncate text-sm font-semibold ${nameColor}`}
+                            title={t.name}
+                          >
+                            {t.name}
+                          </p>
+                          <p
+                            className={`truncate text-xs ${roleColor}`}
+                            title={fullText}
+                          >
+                            {fullText}
+                          </p>
+                        </div>
+                        {t.linkedinUrl && (
+                          <a
+                            href={t.linkedinUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            aria-label={`${t.name} on LinkedIn`}
+                            className={`ml-auto inline-flex rounded p-1.5 ${linkBtn}`}
+                          >
+                            <LinkedInIcon />
+                          </a>
+                        )}
                       </div>
-                      {t.linkedinUrl && (
-                        <a
-                          href={t.linkedinUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`${t.name} on LinkedIn`}
-                          className={`ml-auto inline-flex rounded p-1.5 ${linkBtn}`}
-                        >
-                          <LinkedInIcon />
-                        </a>
-                      )}
-                    </div>
-                  </article>
-                )
-              })}
+                    </article>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* dot indicators */}
+            <div className="mt-5 flex items-center justify-center gap-2">
+              {testimonials.map((t, i) => (
+                <button
+                  key={t._id}
+                  type="button"
+                  onClick={() => jumpTo(i)}
+                  aria-label={`Go to testimonial ${i + 1}`}
+                  aria-current={active === i ? 'true' : undefined}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    active === i ? `${dotActive} w-6` : `${dotBase} w-2`
+                  }`}
+                />
+              ))}
             </div>
           </div>
-
-          {/* dot / line indicators */}
-          <div className="mt-5 flex items-center justify-center gap-2">
-            {TESTIMONIALS.map((t, i) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => jumpTo(i)}
-                aria-label={`Go to testimonial ${i + 1}`}
-                aria-current={active === i ? 'true' : undefined}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  active === i ? `${dotActive} w-6` : `${dotBase} w-2`
-                }`}
-              />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </section>
   )
