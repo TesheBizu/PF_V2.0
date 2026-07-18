@@ -39,6 +39,9 @@ router.post('/', contactLimiter, async (req, res) => {
   try {
     const saved = await Message.create({ name, email, message })
 
+    const io = req.app.get('io')
+    if (io) io.emit('messages:created', saved)
+
     // Notification email is a nice-to-have: failures must not block the response
     try {
       await sendEmail({
