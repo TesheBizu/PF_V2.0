@@ -11,6 +11,8 @@ import githubRouter from './routes/github.js'
 import authRouter from './routes/auth.js'
 import projectsRouter from './routes/projects.js'
 import skillsRouter from './routes/skills.js'
+import experienceRouter from './routes/experience.js'
+import uploadRouter from './routes/upload.js'
 
 dotenv.config()
 
@@ -52,6 +54,8 @@ app.get('/api/health', (_req, res) => {
 app.use('/api/auth', authRouter)
 app.use('/api/projects', projectsRouter)
 app.use('/api/skills', skillsRouter)
+app.use('/api/experience', experienceRouter)
+app.use('/api/upload', uploadRouter)
 app.use('/api/contact', contactRouter)
 app.use('/api/github', githubRouter)
 

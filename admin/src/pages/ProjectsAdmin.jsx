@@ -3,12 +3,13 @@ import { useTheme } from '../context/ThemeContext'
 import { useToast } from '../context/ToastContext'
 import api from '../lib/api'
 import socket from '../lib/socket'
-import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, Star, Eye, EyeOff } from 'lucide-react'
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown, X, Star, Eye, EyeOff, Upload } from 'lucide-react'
 
 const EMPTY_FORM = {
   title: '',
   description: '',
   techStack: [],
+  thumbnailUrl: '',
   githubUrl: '',
   liveUrl: '',
   featured: false,
@@ -27,8 +28,7 @@ export default function ProjectsAdmin() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [techInput, setTechInput] = useState('')
-  const [thumbnailFile, setThumbnailFile] = useState(null)
-  const [thumbnailPreview, setThumbnailPreview] = useState(null)
+  const [thumbUploading, setThumbUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const fileRef = useRef(null)
@@ -83,8 +83,6 @@ export default function ProjectsAdmin() {
     setEditingId(null)
     setForm(EMPTY_FORM)
     setTechInput('')
-    setThumbnailFile(null)
-    setThumbnailPreview(null)
     setFormOpen(true)
   }
 
@@ -94,6 +92,7 @@ export default function ProjectsAdmin() {
       title: p.title,
       description: p.description,
       techStack: [...p.techStack],
+      thumbnailUrl: p.thumbnailUrl || '',
       githubUrl: p.githubUrl || '',
       liveUrl: p.liveUrl || '',
       featured: p.featured,
@@ -101,8 +100,6 @@ export default function ProjectsAdmin() {
       order: p.order,
     })
     setTechInput('')
-    setThumbnailFile(null)
-    setThumbnailPreview(p.thumbnailUrl || null)
     setFormOpen(true)
   }
 
@@ -111,8 +108,6 @@ export default function ProjectsAdmin() {
     setEditingId(null)
     setForm(EMPTY_FORM)
     setTechInput('')
-    setThumbnailFile(null)
-    setThumbnailPreview(null)
   }
 
   const addTech = () => {
@@ -127,13 +122,24 @@ export default function ProjectsAdmin() {
     setForm((f) => ({ ...f, techStack: f.techStack.filter((x) => x !== t) }))
   }
 
-  const handleFile = (e) => {
+  const handleThumbUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setThumbnailFile(file)
-    const reader = new FileReader()
-    reader.onload = (ev) => setThumbnailPreview(ev.target.result)
-    reader.readAsDataURL(file)
+    setThumbUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('folder', 'portfolio/projects')
+      const res = await api.post('/upload', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      setForm((f) => ({ ...f, thumbnailUrl: res.data.url }))
+      toast.success('Thumbnail uploaded.')
+    } catch {
+      toast.error('Failed to upload thumbnail.')
+    } finally {
+      setThumbUploading(false)
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -143,26 +149,23 @@ export default function ProjectsAdmin() {
     }
     setSaving(true)
     try {
-      const fd = new FormData()
-      fd.append('title', form.title)
-      fd.append('description', form.description)
-      fd.append('techStack', form.techStack.join(','))
-      fd.append('githubUrl', form.githubUrl)
-      fd.append('liveUrl', form.liveUrl)
-      fd.append('featured', String(form.featured))
-      fd.append('isVisible', String(form.isVisible))
-      fd.append('order', String(form.order))
-      if (thumbnailFile) fd.append('thumbnail', thumbnailFile)
+      const payload = {
+        title: form.title,
+        description: form.description,
+        techStack: form.techStack,
+        thumbnailUrl: form.thumbnailUrl || null,
+        githubUrl: form.githubUrl,
+        liveUrl: form.liveUrl,
+        featured: form.featured,
+        isVisible: form.isVisible,
+        order: form.order,
+      }
 
       if (editingId) {
-        await api.put(`/projects/${editingId}`, fd, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        await api.put(`/projects/${editingId}`, payload)
         toast.success('Project updated.')
       } else {
-        await api.post('/projects', fd, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        await api.post('/projects', payload)
         toast.success('Project created.')
       }
       closeForm()
@@ -384,15 +387,33 @@ export default function ProjectsAdmin() {
                 </div>
               </div>
 
+              {/* Thumbnail */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>thumbnail</label>
-                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} className="hidden" />
-                <button type="button" onClick={() => fileRef.current?.click()} className={`w-full rounded border border-dashed px-3 py-3 font-mono text-xs transition-colors ${inputCls}`}>
-                  {thumbnailFile ? thumbnailFile.name : 'Click to upload image (JPG, PNG, WebP)'}
-                </button>
-                {thumbnailPreview && (
-                  <img src={thumbnailPreview} alt="Preview" className="mt-2 h-20 w-20 rounded object-cover" />
-                )}
+                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleThumbUpload} className="hidden" />
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={thumbUploading}
+                    className={`flex items-center gap-2 rounded border border-dashed px-3 py-3 font-mono text-xs transition-colors disabled:opacity-50 ${inputCls}`}
+                  >
+                    <Upload className="h-3.5 w-3.5" />
+                    {thumbUploading ? 'Uploading...' : form.thumbnailUrl ? 'Replace image' : 'Choose image'}
+                  </button>
+                  {form.thumbnailUrl && (
+                    <div className="flex items-center gap-2">
+                      <img src={form.thumbnailUrl} alt="Preview" className="h-14 w-14 rounded object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setForm((f) => ({ ...f, thumbnailUrl: '' }))}
+                        className={`font-mono text-[11px] ${subtextCls} hover:text-alert`}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex items-center gap-6">

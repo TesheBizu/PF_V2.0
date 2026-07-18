@@ -1,7 +1,5 @@
 import express from 'express'
 import auth from '../middleware/auth.js'
-import upload from '../middleware/upload.js'
-import { uploadBuffer } from '../utils/cloudinary.js'
 import Project from '../models/Project.js'
 
 const router = express.Router()
@@ -28,18 +26,13 @@ router.get('/all', auth, async (_req, res) => {
   }
 })
 
-// POST /api/projects — protected, create with optional image
-router.post('/', auth, upload.single('thumbnail'), async (req, res) => {
+// POST /api/projects — protected, JSON only
+router.post('/', auth, async (req, res) => {
   try {
-    const { title, description, techStack, githubUrl, liveUrl, status, featured, isVisible, order } = req.body
+    const { title, description, techStack, thumbnailUrl, githubUrl, liveUrl, status, featured, isVisible, order } = req.body
 
     if (!title || !description) {
       return res.status(400).json({ message: 'Title and description are required.' })
-    }
-
-    let thumbnailUrl = null
-    if (req.file) {
-      thumbnailUrl = await uploadBuffer(req.file.buffer, 'portfolio/projects')
     }
 
     const parsedTech = typeof techStack === 'string'
@@ -53,7 +46,7 @@ router.post('/', auth, upload.single('thumbnail'), async (req, res) => {
       title,
       description,
       techStack: parsedTech,
-      thumbnailUrl,
+      thumbnailUrl: thumbnailUrl || null,
       githubUrl: githubUrl || null,
       liveUrl: liveUrl || null,
       status: projectStatus,
@@ -72,18 +65,19 @@ router.post('/', auth, upload.single('thumbnail'), async (req, res) => {
   }
 })
 
-// PUT /api/projects/:id — protected, update with optional new image
-router.put('/:id', auth, upload.single('thumbnail'), async (req, res) => {
+// PUT /api/projects/:id — protected, JSON only
+router.put('/:id', auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
     if (!project) {
       return res.status(404).json({ message: 'Project not found.' })
     }
 
-    const { title, description, techStack, githubUrl, liveUrl, status, featured, isVisible, order } = req.body
+    const { title, description, techStack, thumbnailUrl, githubUrl, liveUrl, status, featured, isVisible, order } = req.body
 
     if (title !== undefined) project.title = title
     if (description !== undefined) project.description = description
+    if (thumbnailUrl !== undefined) project.thumbnailUrl = thumbnailUrl || null
     if (githubUrl !== undefined) project.githubUrl = githubUrl || null
     if (liveUrl !== undefined) project.liveUrl = liveUrl || null
     if (status !== undefined) {
@@ -98,10 +92,6 @@ router.put('/:id', auth, upload.single('thumbnail'), async (req, res) => {
       project.techStack = typeof techStack === 'string'
         ? techStack.split(',').map((t) => t.trim()).filter(Boolean)
         : Array.isArray(techStack) ? techStack : []
-    }
-
-    if (req.file) {
-      project.thumbnailUrl = await uploadBuffer(req.file.buffer, 'portfolio/projects')
     }
 
     await project.save()
