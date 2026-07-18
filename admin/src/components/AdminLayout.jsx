@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import ThemeToggle from './ThemeToggle'
 import MatrixRain from './MatrixRain'
+import api from '../lib/api'
+import socket from '../lib/socket'
 import {
   LayoutDashboard,
   FolderKanban,
@@ -55,10 +57,45 @@ export default function AdminLayout() {
   const isMatrix = theme === 'matrix'
 
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
     setMobileOpen(false)
   }, [location.pathname])
+
+  useEffect(() => {
+    socket.connect()
+
+    const fetchCount = () => {
+      api
+        .get('/messages/unread-count')
+        .then((res) => setUnreadCount(res.data.count))
+        .catch(() => {})
+    }
+
+    fetchCount()
+
+    socket.on('messages:created', (msg) => {
+      if (msg.status === 'unread') {
+        setUnreadCount((c) => c + 1)
+      }
+    })
+
+    socket.on('messages:updated', (msg) => {
+      fetchCount()
+    })
+
+    socket.on('messages:deleted', () => {
+      fetchCount()
+    })
+
+    return () => {
+      socket.off('messages:created')
+      socket.off('messages:updated')
+      socket.off('messages:deleted')
+      socket.disconnect()
+    }
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -114,7 +151,12 @@ export default function AdminLayout() {
               }
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span>{label}</span>
+              <span className="flex-1">{label}</span>
+              {to === '/admin/messages' && unreadCount > 0 && (
+                <span className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-mono font-bold leading-none ${isMatrix ? 'bg-alert text-white' : 'bg-red-500 text-white'}`}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -181,7 +223,12 @@ export default function AdminLayout() {
               }
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span>{label}</span>
+              <span className="flex-1">{label}</span>
+              {to === '/admin/messages' && unreadCount > 0 && (
+                <span className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-mono font-bold leading-none ${isMatrix ? 'bg-alert text-white' : 'bg-red-500 text-white'}`}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
