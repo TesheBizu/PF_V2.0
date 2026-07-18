@@ -32,7 +32,8 @@ export default function ExperienceAdmin() {
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
-  const [logoUploading, setLogoUploading] = useState(false)
+  const [logoFile, setLogoFile] = useState(null)
+  const [logoPreview, setLogoPreview] = useState(null)
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const fileRef = useRef(null)
@@ -86,6 +87,8 @@ export default function ExperienceAdmin() {
   const openCreate = () => {
     setEditingId(null)
     setForm(EMPTY_FORM)
+    setLogoFile(null)
+    setLogoPreview(null)
     setFormOpen(true)
   }
 
@@ -106,6 +109,8 @@ export default function ExperienceAdmin() {
       isVisible: e.isVisible,
       order: e.order,
     })
+    setLogoFile(null)
+    setLogoPreview(null)
     setFormOpen(true)
   }
 
@@ -113,26 +118,24 @@ export default function ExperienceAdmin() {
     setFormOpen(false)
     setEditingId(null)
     setForm(EMPTY_FORM)
+    setLogoFile(null)
+    if (logoPreview) URL.revokeObjectURL(logoPreview)
+    setLogoPreview(null)
   }
 
-  const handleLogoUpload = async (e) => {
+  const handleLogoChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setLogoUploading(true)
-    try {
-      const fd = new FormData()
-      fd.append('file', file)
-      fd.append('folder', 'portfolio/experience')
-      const res = await api.post('/upload', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      setForm((f) => ({ ...f, logoUrl: res.data.url }))
-      toast.success('Logo uploaded.')
-    } catch {
-      toast.error('Failed to upload logo.')
-    } finally {
-      setLogoUploading(false)
-    }
+    setLogoFile(file)
+    if (logoPreview) URL.revokeObjectURL(logoPreview)
+    setLogoPreview(URL.createObjectURL(file))
+  }
+
+  const removeLogo = () => {
+    setLogoFile(null)
+    if (logoPreview) URL.revokeObjectURL(logoPreview)
+    setLogoPreview(null)
+    setForm((f) => ({ ...f, logoUrl: '' }))
   }
 
   const handleSubmit = async (e) => {
@@ -142,13 +145,25 @@ export default function ExperienceAdmin() {
     }
     setSaving(true)
     try {
+      let logoUrl = form.logoUrl || null
+
+      if (logoFile) {
+        const fd = new FormData()
+        fd.append('file', logoFile)
+        fd.append('folder', 'portfolio/experience')
+        const res = await api.post('/upload', fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        logoUrl = res.data.url
+      }
+
       const endDate = form.ongoing ? null : (form.endDate || null)
 
       const payload = {
         role: form.role,
         company: form.company,
         companyUrl: form.companyUrl || null,
-        logoUrl: form.logoUrl || null,
+        logoUrl,
         location: form.location,
         startDate: form.startDate,
         endDate,
@@ -244,6 +259,8 @@ export default function ExperienceAdmin() {
     ? 'border-matrix-green/20 text-matrix-green/70 bg-matrix-green/5'
     : 'border-gray-300 text-gray-500 bg-gray-50'
 
+  const hasLogo = logoPreview || form.logoUrl
+
   return (
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
@@ -322,7 +339,6 @@ export default function ExperienceAdmin() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* 1. Role / Title */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Role / Title *</label>
                 <input
@@ -334,7 +350,6 @@ export default function ExperienceAdmin() {
                 />
               </div>
 
-              {/* 2. Company / School */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Company / School *</label>
                 <input
@@ -346,7 +361,6 @@ export default function ExperienceAdmin() {
                 />
               </div>
 
-              {/* 3. Company / School URL */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Company / School URL</label>
                 <input
@@ -357,7 +371,6 @@ export default function ExperienceAdmin() {
                 />
               </div>
 
-              {/* 4. Period */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Period</label>
                 <div className="grid grid-cols-2 gap-3">
@@ -393,7 +406,6 @@ export default function ExperienceAdmin() {
                 </label>
               </div>
 
-              {/* 5. Location */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Location *</label>
                 <input
@@ -405,7 +417,6 @@ export default function ExperienceAdmin() {
                 />
               </div>
 
-              {/* 6. Type */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Type *</label>
                 <select
@@ -419,7 +430,6 @@ export default function ExperienceAdmin() {
                 </select>
               </div>
 
-              {/* 7. Description */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Description (one bullet per line)</label>
                 <textarea
@@ -431,26 +441,24 @@ export default function ExperienceAdmin() {
                 />
               </div>
 
-              {/* 8. Logo / Icon */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Logo / Icon</label>
-                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleLogoUpload} className="hidden" />
+                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleLogoChange} className="hidden" />
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    disabled={logoUploading}
-                    className={`flex items-center gap-2 rounded border border-dashed px-3 py-3 font-mono text-xs transition-colors disabled:opacity-50 ${inputCls}`}
+                    className={`flex items-center gap-2 rounded border border-dashed px-3 py-3 font-mono text-xs transition-colors ${inputCls}`}
                   >
                     <Upload className="h-3.5 w-3.5" />
-                    {logoUploading ? 'Uploading...' : form.logoUrl ? 'Replace image' : 'Choose image'}
+                    {form.logoUrl && !logoFile ? 'Replace image' : 'Choose image'}
                   </button>
-                  {form.logoUrl && (
+                  {hasLogo && (
                     <div className="flex items-center gap-2">
-                      <img src={form.logoUrl} alt="Logo preview" className="h-10 w-10 rounded-full object-cover" />
+                      <img src={logoPreview || form.logoUrl} alt="Logo preview" className="h-10 w-10 rounded-full object-cover" />
                       <button
                         type="button"
-                        onClick={() => setForm((f) => ({ ...f, logoUrl: '' }))}
+                        onClick={removeLogo}
                         className={`font-mono text-[11px] ${subtextCls} hover:text-alert`}
                       >
                         Remove
@@ -460,7 +468,6 @@ export default function ExperienceAdmin() {
                 </div>
               </div>
 
-              {/* Visible toggle */}
               <div className="flex items-center gap-6">
                 <label className="flex items-center gap-2 font-mono text-sm">
                   <input

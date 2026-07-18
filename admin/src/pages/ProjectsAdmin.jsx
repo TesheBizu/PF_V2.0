@@ -28,7 +28,8 @@ export default function ProjectsAdmin() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [techInput, setTechInput] = useState('')
-  const [thumbUploading, setThumbUploading] = useState(false)
+  const [thumbFile, setThumbFile] = useState(null)
+  const [thumbPreview, setThumbPreview] = useState(null)
   const [saving, setSaving] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const fileRef = useRef(null)
@@ -83,6 +84,8 @@ export default function ProjectsAdmin() {
     setEditingId(null)
     setForm(EMPTY_FORM)
     setTechInput('')
+    setThumbFile(null)
+    setThumbPreview(null)
     setFormOpen(true)
   }
 
@@ -100,6 +103,8 @@ export default function ProjectsAdmin() {
       order: p.order,
     })
     setTechInput('')
+    setThumbFile(null)
+    setThumbPreview(null)
     setFormOpen(true)
   }
 
@@ -108,6 +113,9 @@ export default function ProjectsAdmin() {
     setEditingId(null)
     setForm(EMPTY_FORM)
     setTechInput('')
+    setThumbFile(null)
+    if (thumbPreview) URL.revokeObjectURL(thumbPreview)
+    setThumbPreview(null)
   }
 
   const addTech = () => {
@@ -122,24 +130,19 @@ export default function ProjectsAdmin() {
     setForm((f) => ({ ...f, techStack: f.techStack.filter((x) => x !== t) }))
   }
 
-  const handleThumbUpload = async (e) => {
+  const handleThumbChange = (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setThumbUploading(true)
-    try {
-      const fd = new FormData()
-      fd.append('file', file)
-      fd.append('folder', 'portfolio/projects')
-      const res = await api.post('/upload', fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      setForm((f) => ({ ...f, thumbnailUrl: res.data.url }))
-      toast.success('Thumbnail uploaded.')
-    } catch {
-      toast.error('Failed to upload thumbnail.')
-    } finally {
-      setThumbUploading(false)
-    }
+    setThumbFile(file)
+    if (thumbPreview) URL.revokeObjectURL(thumbPreview)
+    setThumbPreview(URL.createObjectURL(file))
+  }
+
+  const removeThumb = () => {
+    setThumbFile(null)
+    if (thumbPreview) URL.revokeObjectURL(thumbPreview)
+    setThumbPreview(null)
+    setForm((f) => ({ ...f, thumbnailUrl: '' }))
   }
 
   const handleSubmit = async (e) => {
@@ -149,11 +152,23 @@ export default function ProjectsAdmin() {
     }
     setSaving(true)
     try {
+      let thumbnailUrl = form.thumbnailUrl || null
+
+      if (thumbFile) {
+        const fd = new FormData()
+        fd.append('file', thumbFile)
+        fd.append('folder', 'portfolio/projects')
+        const res = await api.post('/upload', fd, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        thumbnailUrl = res.data.url
+      }
+
       const payload = {
         title: form.title,
         description: form.description,
         techStack: form.techStack,
-        thumbnailUrl: form.thumbnailUrl || null,
+        thumbnailUrl,
         githubUrl: form.githubUrl,
         liveUrl: form.liveUrl,
         featured: form.featured,
@@ -238,6 +253,8 @@ export default function ProjectsAdmin() {
   const modalCls = isMatrix
     ? 'border-matrix-green/20 bg-bg-void'
     : 'border-gray-200 bg-white'
+
+  const hasThumb = thumbPreview || form.thumbnailUrl
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -387,26 +404,24 @@ export default function ProjectsAdmin() {
                 </div>
               </div>
 
-              {/* Thumbnail */}
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>thumbnail</label>
-                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleThumbUpload} className="hidden" />
+                <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleThumbChange} className="hidden" />
                 <div className="flex items-center gap-3">
                   <button
                     type="button"
                     onClick={() => fileRef.current?.click()}
-                    disabled={thumbUploading}
-                    className={`flex items-center gap-2 rounded border border-dashed px-3 py-3 font-mono text-xs transition-colors disabled:opacity-50 ${inputCls}`}
+                    className={`flex items-center gap-2 rounded border border-dashed px-3 py-3 font-mono text-xs transition-colors ${inputCls}`}
                   >
                     <Upload className="h-3.5 w-3.5" />
-                    {thumbUploading ? 'Uploading...' : form.thumbnailUrl ? 'Replace image' : 'Choose image'}
+                    {form.thumbnailUrl && !thumbFile ? 'Replace image' : 'Choose image'}
                   </button>
-                  {form.thumbnailUrl && (
+                  {hasThumb && (
                     <div className="flex items-center gap-2">
-                      <img src={form.thumbnailUrl} alt="Preview" className="h-14 w-14 rounded object-cover" />
+                      <img src={thumbPreview || form.thumbnailUrl} alt="Preview" className="h-14 w-14 rounded object-cover" />
                       <button
                         type="button"
-                        onClick={() => setForm((f) => ({ ...f, thumbnailUrl: '' }))}
+                        onClick={removeThumb}
                         className={`font-mono text-[11px] ${subtextCls} hover:text-alert`}
                       >
                         Remove
