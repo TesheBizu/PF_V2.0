@@ -1,26 +1,19 @@
 import { useRef, useState, useEffect } from 'react'
 import { animate, useInView, useReducedMotion } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
+import { useSettings } from '../../context/SettingsContext'
 import TerminalWindow from '../ui/TerminalWindow'
 import TerminalReveal from '../ui/TerminalReveal'
 
-const BIO = [
-  'I am a full-stack developer who builds fast, accessible web applications with the MERN stack.',
-  'I care about clean architecture, thoughtful UX, and shipping things that hold up in production.',
-  'Currently open to freelance work and collaboration - reach out if you want to build something together.',
-]
-
-const STATS = [
-  { value: 5, label: 'Years Experience', suffix: '+' },
-  { value: 24, label: 'Projects Completed' },
-  { value: 18, label: 'Technologies' },
-  { value: 100, label: 'Coffee Consumed', suffix: '%' },
-]
-
 export default function About() {
   const { theme } = useTheme()
+  const { settings } = useSettings()
   const isMatrix = theme === 'matrix'
   const reduce = useReducedMotion()
+
+  const bio = settings?.bio?.length ? settings.bio : []
+  const stats = settings?.stats?.length ? settings.stats : []
+  const resumeUrl = settings?.resumeUrl
 
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
@@ -38,11 +31,13 @@ export default function About() {
 
         <div className='flex flex-col gap-10 md:flex-row md:gap-14'>
           {/* LEFT: stats */}
-          <div className='grid w-full grid-cols-2 gap-4 sm:w-2/5 md:order-1'>
-            {STATS.map((s) => (
-              <StatBlock key={s.label} {...s} isMatrix={isMatrix} reduce={reduce} />
-            ))}
-          </div>
+          {stats.length > 0 && (
+            <div className='grid w-full grid-cols-2 gap-4 sm:w-2/5 md:order-1'>
+              {stats.map((s) => (
+                <StatBlock key={s.label} {...s} isMatrix={isMatrix} reduce={reduce} />
+              ))}
+            </div>
+          )}
 
           {/* RIGHT: bio terminal + buttons */}
           <div className='w-full flex-1 md:order-2'>
@@ -52,7 +47,7 @@ export default function About() {
               </div>
               <TerminalReveal
                 mode='lines'
-                lines={BIO}
+                lines={bio}
                 lineClassName={`mt-3 font-sans text-sm leading-relaxed ${bioText}`}
               />
             </TerminalWindow>
@@ -64,13 +59,15 @@ export default function About() {
               >
                 &gt; contact_me
               </a>
-              <a
-                href='/resume.pdf'
-                download
-                className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
-              >
-                &gt; download_cv
-              </a>
+              {resumeUrl && (
+                <a
+                  href={resumeUrl}
+                  download
+                  className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
+                >
+                  &gt; download_cv
+                </a>
+              )}
             </div>
           </div>
         </div>

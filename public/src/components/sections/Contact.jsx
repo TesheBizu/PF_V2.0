@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTheme } from '../../context/ThemeContext'
+import { useSettings } from '../../context/SettingsContext'
 import api from '../../lib/api'
 import TerminalReveal from '../ui/TerminalReveal'
 import Toast from '../ui/Toast'
@@ -18,17 +19,21 @@ const schema = z.object({
   message: z.string().trim().min(10, 'Message must be at least 10 characters'),
 })
 
-const SOCIALS = [
-  { label: 'GitHub', href: 'https://github.com/example', Icon: GitHubIcon },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/example', Icon: LinkedInIcon },
-  { label: 'Twitter / X', href: 'https://x.com/example', Icon: TwitterIcon },
+const SOCIAL_CONFIG = [
+  { key: 'github', label: 'GitHub', Icon: GitHubIcon },
+  { key: 'linkedin', label: 'LinkedIn', Icon: LinkedInIcon },
+  { key: 'twitter', label: 'Twitter / X', Icon: TwitterIcon },
 ]
 
 export default function Contact() {
   const { theme } = useTheme()
+  const { settings } = useSettings()
   const isMatrix = theme === 'matrix'
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState({ message: '', type: 'success', key: 0 })
+  const contactEmail = settings?.contactEmail || ''
+  const contactLocation = settings?.contactLocation || ''
+  const socialLinks = settings?.socialLinks || {}
 
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
@@ -207,34 +212,42 @@ export default function Contact() {
           <div className={`rounded-lg border p-8 font-mono ${infoBox}`}>
             <h3 className={`mb-4 text-lg ${subColor}`}>// contact_info</h3>
             <dl className="space-y-3 text-sm">
-              <div>
-                <dt className={`opacity-70 ${labelColor}`}>email:</dt>
-                <dd className={textColor}>
-                  <a href="mailto:hello@portfolio.dev" className={linkColor}>
-                    hello@portfolio.dev
-                  </a>
-                </dd>
-              </div>
-              <div>
-                <dt className={`opacity-70 ${labelColor}`}>location:</dt>
-                <dd className={textColor}>Remote / Earth</dd>
-              </div>
+              {contactEmail && (
+                <div>
+                  <dt className={`opacity-70 ${labelColor}`}>email:</dt>
+                  <dd className={textColor}>
+                    <a href={`mailto:${contactEmail}`} className={linkColor}>
+                      {contactEmail}
+                    </a>
+                  </dd>
+                </div>
+              )}
+              {contactLocation && (
+                <div>
+                  <dt className={`opacity-70 ${labelColor}`}>location:</dt>
+                  <dd className={textColor}>{contactLocation}</dd>
+                </div>
+              )}
             </dl>
 
             <h3 className={`mb-3 mt-8 text-lg ${subColor}`}>// socials</h3>
             <div className="flex flex-col gap-3">
-              {SOCIALS.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`inline-flex items-center gap-3 text-sm ${linkColor}`}
-                >
-                  <Icon />
-                  {label}
-                </a>
-              ))}
+              {SOCIAL_CONFIG.map(({ key, label, Icon }) => {
+                const href = socialLinks[key]
+                if (!href) return null
+                return (
+                  <a
+                    key={key}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`inline-flex items-center gap-3 text-sm ${linkColor}`}
+                  >
+                    <Icon />
+                    {label}
+                  </a>
+                )
+              })}
             </div>
           </div>
         </div>

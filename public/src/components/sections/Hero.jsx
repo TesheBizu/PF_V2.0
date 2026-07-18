@@ -2,37 +2,31 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
+import { useSettings } from '../../context/SettingsContext'
 import useTypewriter from '../../hooks/useTypewriter'
 import TerminalWindow from '../ui/TerminalWindow'
 import BootCore3D from '../ui/BootCore3D'
 import MeshGradientBackground from '../ui/MeshGradientBackground'
 import { GitHubIcon, LinkedInIcon, TwitterIcon } from '../ui/icons'
 
-const ROLE_TITLES = [
-  'Full Stack Developer',
-  'MERN Developer',
-  'Problem Solver',
-]
-
-const TAGLINE =
-  'Building digital experiences with clean code and creative thinking'
-
-const SOCIALS = [
-  { label: 'GitHub', href: 'https://github.com/example', Icon: GitHubIcon },
-  { label: 'LinkedIn', href: 'https://linkedin.com/in/example', Icon: LinkedInIcon },
-  { label: 'Twitter / X', href: 'https://x.com/example', Icon: TwitterIcon },
-]
-
 const BOOT_EXIT = { opacity: 0, scale: 0.96 }
 const BOOT_TRANSITION = { duration: 0.35, ease: 'easeIn' }
 const HERO_ENTER = { opacity: 0, y: 24 }
 const HERO_TRANSITION = { duration: 0.45, ease: 'easeOut' }
 
+const SOCIAL_LINK_CONFIG = [
+  { key: 'github', label: 'GitHub', Icon: GitHubIcon },
+  { key: 'linkedin', label: 'LinkedIn', Icon: LinkedInIcon },
+  { key: 'twitter', label: 'Twitter / X', Icon: TwitterIcon },
+]
+
 export default function Hero({ lines, isBooting }) {
   const { theme } = useTheme()
+  const { settings, loading } = useSettings()
   const isMatrix = theme === 'matrix'
   const isBluepill = theme === 'bluepill'
-  const { display: roleText } = useTypewriter(ROLE_TITLES)
+  const roleTitles = settings?.roles?.length ? settings.roles : ['Developer']
+  const { display: roleText } = useTypewriter(roleTitles)
   const shouldReduceMotion = useReducedMotion()
 
   const [showScroll, setShowScroll] = useState(false)
@@ -101,6 +95,8 @@ export default function Hero({ lines, isBooting }) {
               isMatrix={isMatrix}
               roleText={roleText}
               shouldReduceMotion={shouldReduceMotion}
+              settings={settings}
+              loading={loading}
             />
           </motion.div>
         )}
@@ -133,7 +129,7 @@ function BootScreen({ lines, isMatrix }) {
   )
 }
 
-function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
+function ResolvedHero({ isMatrix, roleText, shouldReduceMotion, settings, loading }) {
   const base = shouldReduceMotion ? { duration: 0 } : { duration: 0.5, ease: 'easeOut' }
 
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
@@ -153,6 +149,14 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
   const initialsColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const avatarBg = isMatrix ? 'bg-matrix-dim/30' : 'bg-bluepill-bg'
 
+  const heroName = settings?.name || (loading ? '...' : '')
+  const tagline = settings?.tagline || ''
+  const photoUrl = settings?.profilePhotoUrl
+  const socialLinks = settings?.socialLinks || {}
+  const initials = settings?.name
+    ? settings.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
+    : '?'
+
   return (
     <div className="flex flex-col-reverse items-center gap-10 sm:flex-row sm:items-center sm:gap-14">
       {/* LEFT: text content */}
@@ -163,7 +167,7 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
           animate={{ opacity: 1, y: 0 }}
           transition={base}
         >
-          John Doe
+          {heroName}
         </motion.h1>
 
         <motion.div
@@ -182,7 +186,7 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...base, delay: shouldReduceMotion ? 0 : 0.4 }}
         >
-          {TAGLINE}
+          {tagline}
         </motion.p>
 
         <motion.div
@@ -211,18 +215,22 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...base, delay: shouldReduceMotion ? 0 : 0.7 }}
         >
-          {SOCIALS.map(({ label, href, Icon }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={label}
-              className={`transition-colors ${socialColor}`}
-            >
-              <Icon />
-            </a>
-          ))}
+          {SOCIAL_LINK_CONFIG.map(({ key, label, Icon }) => {
+            const href = socialLinks[key]
+            if (!href) return null
+            return (
+              <a
+                key={key}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={label}
+                className={`transition-colors ${socialColor}`}
+              >
+                <Icon />
+              </a>
+            )
+          })}
         </motion.div>
       </div>
 
@@ -241,11 +249,19 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion }) {
         <div
           className={`relative h-56 w-56 overflow-hidden border-2 transition-shadow duration-300 sm:h-64 sm:w-64 ${photoBorder} ${glow}`}
         >
-          <div
-            className={`flex h-full w-full items-center justify-center font-data text-6xl font-bold ${initialsColor} ${avatarBg}`}
-          >
-            JD
-          </div>
+          {photoUrl ? (
+            <img
+              src={photoUrl}
+              alt={settings?.name || 'Profile photo'}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div
+              className={`flex h-full w-full items-center justify-center font-data text-6xl font-bold ${initialsColor} ${avatarBg}`}
+            >
+              {initials}
+            </div>
+          )}
         </div>
       </motion.div>
     </div>
