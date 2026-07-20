@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useInView } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 import api from '../../lib/api'
 import TerminalReveal from '../ui/TerminalReveal'
+import { trackEvent } from '../../lib/analytics'
 
 const CELL = 'h-3 w-3 rounded-[2px] transition-colors'
 const LEVEL_EMPTY = {
@@ -29,6 +31,13 @@ function formatDate(dateStr) {
 export default function GithubActivity() {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
+
+  const sectionRef = useRef(null)
+  const sectionInView = useInView(sectionRef, { once: true, amount: 0.3 })
+
+  useEffect(() => {
+    if (sectionInView) trackEvent('section_view', { section: 'github' })
+  }, [sectionInView])
 
   const [state, setState] = useState({ loading: true, error: false, data: null })
   const [tip, setTip] = useState(null)
@@ -72,7 +81,7 @@ export default function GithubActivity() {
   const skeletonColumns = Array.from({ length: 22 }, () => new Array(7).fill(null))
 
   return (
-    <section id="github" className="px-6 py-24">
+    <section ref={sectionRef} id="github" className="px-6 py-24">
       <div className="mx-auto max-w-5xl">
         <h2 className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}>
           <span className={accent}>&gt;</span>{' '}

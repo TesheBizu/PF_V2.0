@@ -1,18 +1,25 @@
 import { useState, useEffect, useRef } from 'react'
+import { useInView } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 import api from '../../lib/api'
 import socket from '../../lib/socket'
 import TerminalReveal from '../ui/TerminalReveal'
 import SkillsSphere from './SkillsSphere'
+import { trackEvent } from '../../lib/analytics'
 
 export default function Skills() {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
 
   const sectionRef = useRef(null)
+  const sectionInView = useInView(sectionRef, { once: true, amount: 0.3 })
 
   const [skills, setSkills] = useState([])
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (sectionInView) trackEvent('section_view', { section: 'skills' })
+  }, [sectionInView])
 
   useEffect(() => {
     let cancelled = false

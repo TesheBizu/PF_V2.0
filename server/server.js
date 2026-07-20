@@ -16,6 +16,7 @@ import uploadRouter from './routes/upload.js'
 import testimonialsRouter from './routes/testimonials.js'
 import messagesRouter from './routes/messages.js'
 import siteSettingsRouter from './routes/siteSettings.js'
+import analyticsRouter from './routes/analytics.js'
 
 dotenv.config()
 
@@ -64,6 +65,7 @@ app.use('/api/github', githubRouter)
 app.use('/api/testimonials', testimonialsRouter)
 app.use('/api/messages', messagesRouter)
 app.use('/api/settings', siteSettingsRouter)
+app.use('/api', analyticsRouter)
 
 const start = async () => {
   try {

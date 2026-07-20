@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import { motion, AnimatePresence, useInView, useReducedMotion } from 'framer-motion'
 import { Briefcase, GraduationCap, BookOpen, ExternalLink } from 'lucide-react'
 import { useTheme } from '../../context/ThemeContext'
 import api from '../../lib/api'
 import socket from '../../lib/socket'
 import TerminalReveal from '../ui/TerminalReveal'
+import { trackEvent } from '../../lib/analytics'
 
 const FALLBACK = [
   {
@@ -107,6 +108,12 @@ export default function Experience() {
   const isMatrix = theme === 'matrix'
   const reduce = useReducedMotion()
   const isDesktop = useIsDesktop()
+  const sectionRef = useRef(null)
+  const sectionInView = useInView(sectionRef, { once: true, amount: 0.3 })
+
+  useEffect(() => {
+    if (sectionInView) trackEvent('section_view', { section: 'experience' })
+  }, [sectionInView])
 
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
@@ -229,7 +236,7 @@ export default function Experience() {
   }
 
   return (
-    <section id="experience" className="px-6 py-24">
+    <section ref={sectionRef} id="experience" className="px-6 py-24">
       <div className="mx-auto max-w-5xl">
         <h2 className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}>
           <span className={accent}>&gt;</span>{' '}

@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTheme } from './context/ThemeContext'
 import { useSettings } from './context/SettingsContext'
 import useBootSequence from './hooks/useBootSequence'
+import { trackEvent } from './lib/analytics'
 import MatrixRain from './components/layout/MatrixRain'
 import Navbar from './components/layout/Navbar'
 import InteractiveTerminal from './components/terminal/InteractiveTerminal'
@@ -28,6 +29,7 @@ function App() {
   const { settings } = useSettings()
   const { lines, isBooting, skipBoot } = useBootSequence()
   const sections = settings?.sections
+  const pageViewTracked = useRef(false)
 
   useEffect(() => {
     if (!isBooting) return
@@ -42,6 +44,12 @@ function App() {
       window.removeEventListener('click', skip)
     }
   }, [isBooting, skipBoot])
+
+  useEffect(() => {
+    if (isBooting || pageViewTracked.current) return
+    pageViewTracked.current = true
+    trackEvent('page_view')
+  }, [isBooting])
 
   const scrimClass =
     theme === 'matrix'

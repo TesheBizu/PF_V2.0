@@ -4,6 +4,7 @@ import { useTheme } from '../../context/ThemeContext'
 import { LinkedInIcon } from '../ui/icons'
 import api from '../../lib/api'
 import socket from '../../lib/socket'
+import { trackEvent } from '../../lib/analytics'
 
 const FALLBACK = []
 
@@ -41,6 +42,14 @@ export default function Testimonials() {
   const pausedRef = useRef(false)
   const resumeTimer = useRef(null)
   const inView = useInView(sectionRef, { amount: 0.3 })
+
+  const sectionTracked = useRef(false)
+  useEffect(() => {
+    if (inView && !sectionTracked.current) {
+      sectionTracked.current = true
+      trackEvent('section_view', { section: 'testimonials' })
+    }
+  }, [inView])
 
   // Clamp index when list shrinks or grows
   useEffect(() => {

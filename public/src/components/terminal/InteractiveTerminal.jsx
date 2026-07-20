@@ -7,6 +7,7 @@ import {
 import { useTheme } from '../../context/ThemeContext'
 import TerminalWindow from '../ui/TerminalWindow'
 import { executeCommand } from './commands'
+import { trackEvent } from '../../lib/analytics'
 
 const PROMPT = 'visitor@portfolio:~$'
 const MIN_W = 320
@@ -114,6 +115,7 @@ export default function InteractiveTerminal() {
     }
 
     setCmdHistory((c) => [...c, cmd])
+    trackEvent('terminal_command', { command: cmd })
 
     const { output, clear } = executeCommand(cmd, buildCtx())
     if (clear) {

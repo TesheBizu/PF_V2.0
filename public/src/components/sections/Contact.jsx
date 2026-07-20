@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
+import { useInView } from 'framer-motion'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useTheme } from '../../context/ThemeContext'
@@ -9,6 +10,7 @@ import TerminalReveal from '../ui/TerminalReveal'
 import Toast from '../ui/Toast'
 import { Phone, MapPin } from 'lucide-react'
 import { GitHubIcon, LinkedInIcon, TwitterIcon } from '../ui/icons'
+import { trackEvent } from '../../lib/analytics'
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Please enter your name'),
@@ -30,6 +32,14 @@ export default function Contact() {
   const { theme } = useTheme()
   const { settings } = useSettings()
   const isMatrix = theme === 'matrix'
+
+  const sectionRef = useRef(null)
+  const sectionInView = useInView(sectionRef, { once: true, amount: 0.3 })
+
+  useEffect(() => {
+    if (sectionInView) trackEvent('section_view', { section: 'contact' })
+  }, [sectionInView])
+
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState({ message: '', type: 'success', key: 0 })
   const contactEmail = settings?.contactEmail || ''
@@ -74,6 +84,7 @@ export default function Contact() {
     setSubmitting(true)
     try {
       await api.post('/contact', data)
+      trackEvent('form_submit')
       reset()
       setToast((t) => ({
         message: 'message.sent successfully',
@@ -98,7 +109,7 @@ export default function Contact() {
   }, [])
 
   return (
-    <section id="contact" className="px-6 py-24">
+    <section ref={sectionRef} id="contact" className="px-6 py-24">
       <div className="mx-auto max-w-5xl">
         <h2 className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}>
           <span className={accent}>&gt;</span>{' '}

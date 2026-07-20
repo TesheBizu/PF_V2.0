@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useInView } from 'framer-motion'
 import { useTheme } from '../../context/ThemeContext'
 import api from '../../lib/api'
 import socket from '../../lib/socket'
 import TerminalReveal from '../ui/TerminalReveal'
 import { GitHubIcon, ExternalLinkIcon } from '../ui/icons'
+import { trackEvent } from '../../lib/analytics'
 
 function mapProject(p) {
   return {
@@ -21,6 +23,14 @@ function mapProject(p) {
 export default function Projects() {
   const { theme } = useTheme()
   const isMatrix = theme === 'matrix'
+
+  const sectionRef = useRef(null)
+  const sectionInView = useInView(sectionRef, { once: true, amount: 0.3 })
+
+  useEffect(() => {
+    if (sectionInView) trackEvent('section_view', { section: 'projects' })
+  }, [sectionInView])
+
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -104,7 +114,7 @@ export default function Projects() {
     : 'border border-bluepill-accent/40 text-bluepill-accent-dark hover:bg-bluepill-accent/10'
 
   return (
-    <section id="projects" className="px-6 py-24">
+    <section ref={sectionRef} id="projects" className="px-6 py-24">
       <div className="mx-auto max-w-5xl">
         <h2
           className={`mb-3 font-mono text-2xl sm:text-3xl ${headingColor}`}
@@ -196,7 +206,10 @@ export default function Projects() {
                           href={project.liveUrl}
                           target="_blank"
                           rel="noreferrer"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            trackEvent('project_click', { projectId: project.id, projectTitle: project.title, linkType: 'open' })
+                          }}
                           className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 font-mono text-xs font-semibold transition-colors ${openBtnCls}`}
                         >
                           <ExternalLinkIcon className="h-3.5 w-3.5" />
@@ -208,7 +221,10 @@ export default function Projects() {
                           href={project.githubUrl}
                           target="_blank"
                           rel="noreferrer"
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            trackEvent('project_click', { projectId: project.id, projectTitle: project.title, linkType: 'source' })
+                          }}
                           className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 font-mono text-xs transition-colors ${sourceBtnCls}`}
                         >
                           <GitHubIcon className="h-3.5 w-3.5" />

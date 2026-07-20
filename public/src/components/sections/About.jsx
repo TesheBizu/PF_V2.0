@@ -4,16 +4,23 @@ import { useTheme } from '../../context/ThemeContext'
 import { useSettings } from '../../context/SettingsContext'
 import TerminalWindow from '../ui/TerminalWindow'
 import TerminalReveal from '../ui/TerminalReveal'
+import { trackEvent } from '../../lib/analytics'
 
 export default function About() {
   const { theme } = useTheme()
   const { settings } = useSettings()
   const isMatrix = theme === 'matrix'
   const reduce = useReducedMotion()
+  const sectionRef = useRef(null)
+  const sectionInView = useInView(sectionRef, { once: true, amount: 0.3 })
 
   const bio = settings?.bio?.length ? settings.bio : []
   const stats = settings?.stats?.length ? settings.stats : []
   const resumeUrl = settings?.resumeUrl
+
+  useEffect(() => {
+    if (sectionInView) trackEvent('section_view', { section: 'about' })
+  }, [sectionInView])
 
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
   const headingColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
@@ -22,7 +29,7 @@ export default function About() {
   const hoverBg = isMatrix ? 'hover:bg-matrix-green/10' : 'hover:bg-bluepill-accent/10'
 
   return (
-    <section id='about' className='px-6 py-24'>
+    <section ref={sectionRef} id='about' className='px-6 py-24'>
       <div className='mx-auto max-w-5xl'>
         <h2 className={`mb-12 font-mono text-2xl sm:text-3xl ${headingColor}`}>
           <span className={accent}>&gt;</span>{' '}
@@ -65,6 +72,7 @@ export default function About() {
                   download
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackEvent('resume_download')}
                   className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
                 >
                   &gt; download_cv
