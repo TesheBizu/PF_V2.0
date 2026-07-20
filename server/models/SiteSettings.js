@@ -20,6 +20,7 @@ const siteSettingsSchema = new mongoose.Schema({
     twitter: { type: String, default: '' },
   },
   contactEmail: { type: String, default: '' },
+  contactPhone: { type: String, default: '' },
   contactLocation: { type: String, default: '' },
   footerCopyrightName: { type: String, default: '' },
 }, { timestamps: true })

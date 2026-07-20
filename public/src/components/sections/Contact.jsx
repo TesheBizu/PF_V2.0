@@ -7,6 +7,7 @@ import { useSettings } from '../../context/SettingsContext'
 import api from '../../lib/api'
 import TerminalReveal from '../ui/TerminalReveal'
 import Toast from '../ui/Toast'
+import { Phone, MapPin } from 'lucide-react'
 import { GitHubIcon, LinkedInIcon, TwitterIcon } from '../ui/icons'
 
 const schema = z.object({
@@ -32,6 +33,7 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false)
   const [toast, setToast] = useState({ message: '', type: 'success', key: 0 })
   const contactEmail = settings?.contactEmail || ''
+  const contactPhone = settings?.contactPhone || ''
   const contactLocation = settings?.contactLocation || ''
   const socialLinks = settings?.socialLinks || {}
 
@@ -222,10 +224,34 @@ export default function Contact() {
                   </dd>
                 </div>
               )}
+              {contactPhone && (
+                <div>
+                  <dt className={`opacity-70 ${labelColor}`}>phone:</dt>
+                  <dd>
+                    <a
+                      href={`tel:${contactPhone}`}
+                      className={`inline-flex items-center gap-2 text-sm ${linkColor}`}
+                    >
+                      <Phone className="h-4 w-4" />
+                      {contactPhone}
+                    </a>
+                  </dd>
+                </div>
+              )}
               {contactLocation && (
                 <div>
                   <dt className={`opacity-70 ${labelColor}`}>location:</dt>
-                  <dd className={textColor}>{contactLocation}</dd>
+                  <dd>
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contactLocation)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`inline-flex items-center gap-2 text-sm ${linkColor}`}
+                    >
+                      <MapPin className="h-4 w-4" />
+                      {contactLocation}
+                    </a>
+                  </dd>
                 </div>
               )}
             </dl>

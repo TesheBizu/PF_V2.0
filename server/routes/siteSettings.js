@@ -39,6 +39,7 @@ const DEFAULTS = {
   resumeUrl: null,
   socialLinks: { github: '', linkedin: '', twitter: '' },
   contactEmail: '',
+  contactPhone: '',
   contactLocation: '',
   footerCopyrightName: '',
 }
@@ -120,6 +121,7 @@ router.put(
           twitter: fields['socialLinks.twitter'] || '',
         },
         contactEmail: fields.contactEmail || '',
+        contactPhone: fields.contactPhone || '',
         contactLocation: fields.contactLocation || '',
         footerCopyrightName: fields.footerCopyrightName || '',
       }

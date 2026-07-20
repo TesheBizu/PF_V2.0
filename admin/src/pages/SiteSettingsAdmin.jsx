@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS = {
   resumeUrl: null,
   socialLinks: { github: '', linkedin: '', twitter: '' },
   contactEmail: '',
+  contactPhone: '',
   contactLocation: '',
   footerCopyrightName: '',
 }
@@ -176,6 +177,7 @@ export default function SiteSettingsAdmin() {
       fd.append('socialLinks.linkedin', settings.socialLinks.linkedin)
       fd.append('socialLinks.twitter', settings.socialLinks.twitter)
       fd.append('contactEmail', settings.contactEmail)
+      fd.append('contactPhone', settings.contactPhone)
       fd.append('contactLocation', settings.contactLocation)
       fd.append('footerCopyrightName', settings.footerCopyrightName)
 
@@ -447,12 +449,24 @@ export default function SiteSettingsAdmin() {
               />
             </div>
             <div>
-              <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Contact Location</label>
+              <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>
+                Phone Number
+                <span className="ml-1.5 opacity-50">(international format)</span>
+              </label>
+              <input
+                value={settings.contactPhone}
+                onChange={(e) => updateField('contactPhone', e.target.value)}
+                className={`w-full rounded border px-3 py-2 font-mono text-sm outline-none transition-colors ${inputCls}`}
+                placeholder="+251912345678"
+              />
+            </div>
+            <div>
+              <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Location</label>
               <input
                 value={settings.contactLocation}
                 onChange={(e) => updateField('contactLocation', e.target.value)}
                 className={`w-full rounded border px-3 py-2 font-mono text-sm outline-none transition-colors ${inputCls}`}
-                placeholder="Remote / Somewhere"
+                placeholder="Bahir Dar, Ethiopia"
               />
             </div>
             <div>
