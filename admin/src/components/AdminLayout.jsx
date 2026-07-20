@@ -19,6 +19,8 @@ import {
   LogOut,
   Menu,
   X,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -57,6 +59,7 @@ export default function AdminLayout() {
   const isMatrix = theme === 'matrix'
 
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
@@ -81,7 +84,7 @@ export default function AdminLayout() {
       }
     })
 
-    socket.on('messages:updated', (msg) => {
+    socket.on('messages:updated', () => {
       fetchCount()
     })
 
@@ -104,7 +107,7 @@ export default function AdminLayout() {
 
   const pageTitle = getPageTitle(location.pathname)
 
-  const sidebarBg = isMatrix ? 'bg-bg-surface' : 'bg-white'
+  const sidebarBg = isMatrix ? 'bg-bg-surface/90' : 'bg-gray-50'
   const sidebarBorder = isMatrix ? 'border-matrix-green/15' : 'border-gray-200'
   const logoCls = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const linkCls = isMatrix
@@ -113,30 +116,37 @@ export default function AdminLayout() {
   const linkActiveCls = isMatrix
     ? 'text-matrix-green bg-matrix-green/10 border-r-2 border-matrix-green'
     : 'text-bluepill-accent bg-bluepill-accent/10 border-r-2 border-bluepill-accent'
-  const headerBg = isMatrix ? 'bg-bg-surface' : 'bg-white/80'
+  const headerBg = isMatrix ? 'bg-bg-surface/90' : 'bg-white/80'
   const headerBorder = isMatrix ? 'border-matrix-green/15' : 'border-gray-200'
   const headerTitleCls = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const emailCls = isMatrix ? 'text-matrix-dim' : 'text-gray-400'
   const logoutCls = isMatrix
     ? 'text-matrix-dim hover:text-alert'
     : 'text-gray-400 hover:text-alert'
-  const contentBg = isMatrix ? 'bg-bg-surface' : 'bg-bluepill-bg'
+  const mainBg = isMatrix ? 'bg-bg-surface/80' : 'bg-bluepill-bg'
   const contentText = isMatrix ? 'text-text-primary' : 'text-bluepill-text'
   const hamburgerCls = isMatrix
     ? 'text-matrix-dim hover:text-matrix-green'
     : 'text-gray-400 hover:text-bluepill-accent'
   const overlayBg = isMatrix ? 'bg-black/60' : 'bg-black/40'
+  const collapseBtnCls = isMatrix
+    ? 'text-matrix-dim hover:text-matrix-green hover:bg-matrix-green/10'
+    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
 
-  const sidebarWidth = 'w-64'
+  const sidebarWidth = collapsed ? 'w-16' : 'w-64'
 
-  function SidebarContent() {
+  function SidebarContent({ collapsed }) {
     return (
       <>
-        <div className={`flex items-center gap-2 border-b px-5 py-5 ${sidebarBorder}`}>
-          <span className={`font-mono text-base font-bold ${logoCls}`}>PF_V2.0</span>
-          <span className={`font-mono text-xs ${isMatrix ? 'text-matrix-dim' : 'text-gray-400'}`}>
-            Admin
+        <div className={`flex items-center gap-2 border-b px-5 py-3 ${sidebarBorder}`}>
+          <span className={`font-mono text-base font-bold ${logoCls}`}>
+            {collapsed ? 'PF' : 'PF_V2.0'}
           </span>
+          {!collapsed && (
+            <span className={`font-mono text-xs ${isMatrix ? 'text-matrix-dim' : 'text-gray-400'}`}>
+              Admin
+            </span>
+          )}
         </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-3">
@@ -144,6 +154,7 @@ export default function AdminLayout() {
             <NavLink
               key={to}
               to={to}
+              title={collapsed ? label : undefined}
               className={({ isActive }) =>
                 `mb-0.5 flex items-center gap-3 rounded-r-sm px-3 py-2.5 font-mono text-sm transition-colors ${
                   isActive ? linkActiveCls : linkCls
@@ -151,8 +162,8 @@ export default function AdminLayout() {
               }
             >
               <Icon className="h-4 w-4 shrink-0" />
-              <span className="flex-1">{label}</span>
-              {to === '/admin/messages' && unreadCount > 0 && (
+              {!collapsed && <span className="flex-1">{label}</span>}
+              {!collapsed && to === '/admin/messages' && unreadCount > 0 && (
                 <span className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-[10px] font-mono font-bold leading-none ${isMatrix ? 'bg-alert text-white' : 'bg-red-500 text-white'}`}>
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
@@ -161,13 +172,14 @@ export default function AdminLayout() {
           ))}
         </nav>
 
-        <div className={`border-t px-5 py-4 ${sidebarBorder}`}>
+        <div className={`border-t px-3 py-3 ${sidebarBorder}`}>
           <button
             onClick={handleLogout}
+            title={collapsed ? 'Logout' : undefined}
             className={`flex w-full items-center gap-3 rounded-r-sm px-3 py-2 font-mono text-sm transition-colors ${logoutCls}`}
           >
-            <LogOut className="h-4 w-4" />
-            <span>Logout</span>
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Logout</span>}
           </button>
         </div>
       </>
@@ -175,12 +187,13 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className={`relative flex h-screen overflow-hidden ${contentBg} ${contentText}`}>
+    <div className={`relative flex h-screen overflow-hidden ${contentText}`}>
       {isMatrix && <MatrixRain active={isMatrix} />}
+
       <aside
-        className={`relative z-10 hidden lg:flex ${sidebarWidth} shrink-0 flex-col border-r ${sidebarBg} ${sidebarBorder}`}
+        className={`relative z-10 hidden lg:flex shrink-0 flex-col border-r transition-[width] duration-300 overflow-hidden ${sidebarWidth} ${sidebarBg} ${sidebarBorder}`}
       >
-        <SidebarContent />
+        <SidebarContent collapsed={collapsed} />
       </aside>
 
       {mobileOpen && (
@@ -195,7 +208,7 @@ export default function AdminLayout() {
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className={`flex items-center justify-between border-b px-5 py-5 ${sidebarBorder}`}>
+        <div className={`flex items-center justify-between border-b px-5 py-3 ${sidebarBorder}`}>
           <div className="flex items-center gap-2">
             <span className={`font-mono text-base font-bold ${logoCls}`}>PF_V2.0</span>
             <span className={`font-mono text-xs ${isMatrix ? 'text-matrix-dim' : 'text-gray-400'}`}>
@@ -233,7 +246,7 @@ export default function AdminLayout() {
           ))}
         </nav>
 
-        <div className={`border-t px-5 py-4 ${sidebarBorder}`}>
+        <div className={`border-t px-5 py-3 ${sidebarBorder}`}>
           <button
             onClick={handleLogout}
             className={`flex w-full items-center gap-3 rounded-r-sm px-3 py-2 font-mono text-sm transition-colors ${logoutCls}`}
@@ -256,6 +269,17 @@ export default function AdminLayout() {
             >
               <Menu className="h-5 w-5" />
             </button>
+            <button
+              onClick={() => setCollapsed((c) => !c)}
+              className={`hidden lg:flex shrink-0 items-center justify-center rounded p-1 transition-colors ${collapseBtnCls}`}
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="h-5 w-5" />
+              ) : (
+                <PanelLeftClose className="h-5 w-5" />
+              )}
+            </button>
             <h1 className={`truncate font-mono text-base font-semibold ${headerTitleCls}`}>
               {pageTitle}
             </h1>
@@ -269,7 +293,7 @@ export default function AdminLayout() {
           </div>
         </header>
 
-        <main className={`flex-1 overflow-y-auto p-4 sm:p-6 ${contentBg}`}>
+        <main className={`flex-1 overflow-y-auto p-4 sm:p-6 ${mainBg}`}>
           <Outlet />
         </main>
       </div>

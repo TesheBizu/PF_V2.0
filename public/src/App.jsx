@@ -53,7 +53,7 @@ function App() {
 
   const scrimClass =
     theme === 'matrix'
-      ? 'bg-bg-surface'
+      ? 'bg-bg-surface/80'
       : 'bg-gradient-to-b from-bluepill-bg/85 via-bluepill-bg/90 to-bluepill-bg/90'
 
   return (
