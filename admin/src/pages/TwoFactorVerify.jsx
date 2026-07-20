@@ -61,7 +61,7 @@ export default function TwoFactorVerify() {
       </div>
 
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
-        <div className={`w-full max-w-sm rounded-lg p-6 ${isMatrix ? 'bg-bg-void/85' : 'bg-white/85 backdrop-blur-sm'}`}>
+        <div className={`w-full max-w-sm rounded-lg p-6 ${isMatrix ? 'bg-bg-surface' : 'bg-white/85 backdrop-blur-sm'}`}>
           <div className="mb-6 text-center">
             <h1 className={`font-mono text-2xl ${headingCls}`}>PF_V2.0</h1>
             <p className={`mt-1 font-mono text-sm ${subtitleCls}`}>two-factor authentication</p>

@@ -52,7 +52,7 @@ export default function ProjectModal({ project, onClose }) {
   }, [project, onClose])
 
   const frame = isMatrix
-    ? 'border-matrix-green/30 bg-bg-void/95'
+    ? 'border-matrix-green/30 bg-bg-surface'
     : 'border-bluepill-accent/30 bg-white/95'
   const titleBar = isMatrix
     ? 'border-matrix-green/30 bg-matrix-dim/40'

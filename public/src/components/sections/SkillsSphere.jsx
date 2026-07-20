@@ -99,7 +99,7 @@ function SphereView({ skills, isMatrix }) {
   const barColor = isMatrix ? 'bg-matrix-green' : 'bg-bluepill-accent'
   const trackBg = isMatrix ? 'bg-matrix-dim/40' : 'bg-bluepill-accent/10'
   const muted = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
-  const panelBg = isMatrix ? 'bg-bg-void/95' : 'bg-white/95'
+  const panelBg = isMatrix ? 'bg-bg-surface' : 'bg-white/95'
   const panelBorder = isMatrix ? 'border-matrix-green/40' : 'border-bluepill-accent/40'
   const glowShadow = isMatrix
     ? '0 0 12px rgba(0,255,65,0.5)'

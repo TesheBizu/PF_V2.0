@@ -180,7 +180,7 @@ export default function GithubActivity() {
         <div
           className={`pointer-events-none fixed z-50 -translate-y-full rounded border px-2 py-1 font-mono text-[11px] shadow-lg ${borderColor} ${
             isMatrix
-              ? 'border-matrix-green/40 bg-bg-void text-text-primary'
+              ? 'border-matrix-green/40 bg-bg-surface text-text-primary'
               : 'border-bluepill-accent/40 bg-white text-bluepill-text'
           }`}
           style={{ left: tip.x + 12, top: tip.y - 8 }}

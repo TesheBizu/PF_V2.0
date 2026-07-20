@@ -90,7 +90,7 @@ export default function Navbar() {
 
   const shell = isMatrix
     ? solid
-      ? 'bg-bg-void/85 backdrop-blur-md border-b border-matrix-green/20'
+      ? 'bg-bg-surface backdrop-blur-md border-b border-matrix-green/20'
       : 'bg-transparent border-b border-transparent'
     : solid
       ? 'bg-bluepill-bg/85 backdrop-blur-md border-b border-bluepill-accent/20'
@@ -176,7 +176,7 @@ export default function Navbar() {
       {open && (
         <div
           className={`sm:hidden border-t ${
-            isMatrix ? 'border-matrix-green/20 bg-bg-void/95' : 'border-bluepill-accent/20 bg-bluepill-bg/95'
+            isMatrix ? 'border-matrix-green/20 bg-bg-surface' : 'border-bluepill-accent/20 bg-bluepill-bg/95'
           } backdrop-blur-md`}
         >
           <div className="px-6 pt-3">

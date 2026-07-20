@@ -13,7 +13,7 @@ export default function ThemeToggle() {
     : 'text-bluepill-accent font-bold'
   const indicatorCls = isMatrix ? 'bg-matrix-green/15' : 'bg-bluepill-accent/15'
   const tooltipCls = isMatrix
-    ? 'bg-bg-void/90 text-text-primary/70'
+    ? 'bg-bg-surface text-text-primary/70'
     : 'bg-bluepill-bg/90 text-bluepill-text/70'
 
   return (

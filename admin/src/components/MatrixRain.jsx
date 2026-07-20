@@ -6,9 +6,9 @@ const FONT_SIZE = 11
 const COLUMN_SPACING = 30
 const TARGET_FPS = 30
 const FRAME_INTERVAL = 1000 / TARGET_FPS
-const TRAIL_ALPHA = 0.05
-const CHAR_ALPHA = 0.5
-const BG_COLOR = '#0a0e0a'
+const TRAIL_ALPHA = 0.06
+const CHAR_ALPHA = 0.65
+const BG_COLOR = '#121812'
 const FG_COLOR = '#00ff41'
 
 export default function MatrixRain({ active = true }) {
@@ -76,7 +76,7 @@ export default function MatrixRain({ active = true }) {
       lastFrameRef.current = timestamp
 
       ctx.globalAlpha = 1
-      ctx.fillStyle = `rgba(10, 14, 10, ${TRAIL_ALPHA})`
+      ctx.fillStyle = `rgba(18, 24, 18, ${TRAIL_ALPHA})`
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       ctx.font = `${FONT_SIZE}px "JetBrains Mono", monospace`
@@ -117,7 +117,7 @@ export default function MatrixRain({ active = true }) {
         height: '100vh',
         zIndex: 0,
         pointerEvents: 'none',
-        opacity: active ? 0.6 : 0,
+        opacity: active ? 0.8 : 0,
         transition: reducedMotion ? 'none' : 'opacity 0.8s ease-in-out',
       }}
     />

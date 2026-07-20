@@ -234,7 +234,7 @@ export default function InteractiveTerminal() {
           style={{ '--glow-color': glowColor }}
           className={`fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border font-mono text-lg shadow-lg transition-colors terminal-glow ${
             isMatrix
-              ? 'border-matrix-green/50 bg-bg-void/90 text-matrix-green hover:bg-matrix-green/10'
+              ? 'border-matrix-green/50 bg-bg-surface text-matrix-green hover:bg-matrix-green/10'
               : 'border-bluepill-accent/50 bg-white/90 text-bluepill-accent-dark hover:bg-bluepill-accent/10'
           }`}
         >
@@ -250,7 +250,7 @@ export default function InteractiveTerminal() {
           aria-label="Restore terminal"
           className={`fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border px-4 py-2 font-mono text-xs shadow-lg transition-colors ${
             isMatrix
-              ? 'border-matrix-green/50 bg-bg-void/90 text-matrix-green hover:bg-matrix-green/10'
+              ? 'border-matrix-green/50 bg-bg-surface text-matrix-green hover:bg-matrix-green/10'
               : 'border-bluepill-accent/50 bg-white/90 text-bluepill-accent-dark hover:bg-bluepill-accent/10'
           }`}
         >

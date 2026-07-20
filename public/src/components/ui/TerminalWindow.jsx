@@ -14,7 +14,7 @@ export default function TerminalWindow({
   const isMatrix = theme === 'matrix'
 
   const frame = isMatrix
-    ? 'border-matrix-green/20 bg-bg-void/80'
+    ? 'border-matrix-green/20 bg-bg-surface/80'
     : 'border-bluepill-accent/20 bg-white/80'
   const titleBar = isMatrix
     ? 'border-matrix-green/20 bg-matrix-dim/30'

@@ -70,7 +70,7 @@ export default function Contact() {
     : 'border-bluepill-accent/50 text-bluepill-accent-dark hover:bg-bluepill-accent/10'
 
   const infoBox = isMatrix
-    ? 'border-matrix-green/20 bg-bg-void/60'
+    ? 'border-matrix-green/20 bg-bg-surface/80'
     : 'border-bluepill-accent/20 bg-white/60'
 
   const {

@@ -207,7 +207,7 @@ export default function Experience() {
     : 'shadow-[0_0_16px_-2px_var(--color-bluepill-accent)]'
   const currentDot = isMatrix ? 'bg-matrix-green' : 'bg-bluepill-accent'
 
-  const cardBg = isMatrix ? 'bg-bg-void/95' : 'bg-white'
+  const cardBg = isMatrix ? 'bg-bg-surface' : 'bg-white'
   const cardBorder = isMatrix ? 'border-matrix-green/20' : 'border-gray-200'
   const cardShadow = isMatrix
     ? 'shadow-[0_4px_24px_-4px_rgba(0,0,0,0.5)]'

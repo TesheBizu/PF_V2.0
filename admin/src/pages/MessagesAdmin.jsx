@@ -135,7 +135,7 @@ export default function MessagesAdmin() {
   const headingCls = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const subtextCls = isMatrix ? 'text-matrix-dim' : 'text-gray-500'
   const cardCls = isMatrix
-    ? 'border-matrix-green/15 bg-bg-void/80'
+    ? 'border-matrix-green/15 bg-bg-surface'
     : 'border-gray-200 bg-white'
   const iconCls = isMatrix
     ? 'text-matrix-green/60 hover:text-matrix-green'

@@ -91,7 +91,7 @@ export default function Projects() {
   const accent = isMatrix ? 'text-matrix-green/60' : 'text-bluepill-accent-dark'
   const muted = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
 
-  const cardBg = isMatrix ? 'bg-bg-void/80 border-matrix-green/15' : 'bg-white border-gray-200'
+  const cardBg = isMatrix ? 'bg-bg-surface border-matrix-green/15' : 'bg-white border-gray-200'
   const cardHoverGlow = isMatrix
     ? 'shadow-[0_0_24px_-6px_var(--color-matrix-green)]'
     : 'shadow-[0_0_24px_-6px_var(--color-bluepill-accent)]'
@@ -100,7 +100,7 @@ export default function Projects() {
     : 'border-bluepill-accent/40'
   const titleColor = isMatrix ? 'text-text-primary' : 'text-gray-900'
   const descColor = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
-  const gradientEnd = isMatrix ? 'from-bg-void/80' : 'from-white'
+  const gradientEnd = isMatrix ? 'from-bg-surface' : 'from-white'
   const tagBorder = isMatrix ? 'border-matrix-green/20' : 'border-bluepill-accent/20'
   const tagText = isMatrix ? 'text-matrix-green/70' : 'text-bluepill-accent-dark'
   const tagBg = isMatrix ? 'bg-matrix-dim/30' : 'bg-bluepill-accent/5'

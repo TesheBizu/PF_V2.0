@@ -178,7 +178,7 @@ export default function SkillsAdmin() {
   const headingCls = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const subtextCls = isMatrix ? 'text-matrix-dim' : 'text-gray-500'
   const cardCls = isMatrix
-    ? 'border-matrix-green/15 bg-bg-void/80'
+    ? 'border-matrix-green/15 bg-bg-surface'
     : 'border-gray-200 bg-white'
   const inputCls = isMatrix
     ? 'border-matrix-green/20 bg-bg-void text-matrix-green placeholder:text-matrix-dim/50 focus:border-matrix-green/50'

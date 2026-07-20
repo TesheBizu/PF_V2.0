@@ -198,7 +198,7 @@ export default function Testimonials() {
   const muted = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
 
   const cardBox = isMatrix
-    ? 'border-matrix-green/20 bg-bg-void/70'
+    ? 'border-matrix-green/20 bg-bg-surface'
     : 'border-bluepill-accent/20 bg-white/70'
   const ring = isMatrix ? 'border-matrix-green/60' : 'border-bluepill-accent/60'
   const nameColor = isMatrix ? 'text-text-primary' : 'text-bluepill-text'

@@ -107,7 +107,7 @@ function StatBlock({ value, label, suffix = '', isMatrix, reduce }) {
 
   const numColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
   const labelColor = isMatrix ? 'text-text-primary/60' : 'text-bluepill-text/60'
-  const boxBg = isMatrix ? 'border-matrix-green/20 bg-bg-void/50' : 'border-bluepill-accent/20 bg-bluepill-bg/60'
+  const boxBg = isMatrix ? 'border-matrix-green/20 bg-bg-surface/60' : 'border-bluepill-accent/20 bg-bluepill-bg/60'
 
   return (
     <div

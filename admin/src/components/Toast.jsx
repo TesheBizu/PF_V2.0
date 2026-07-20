@@ -37,7 +37,7 @@ export default function ToastContainer() {
               exit={{ opacity: 0, y: -10, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               className={`pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded border px-4 py-3 font-mono text-sm shadow-lg backdrop-blur-sm ${
-                isMatrix ? 'bg-bg-void/90' : 'bg-white/90'
+                isMatrix ? 'bg-bg-surface' : 'bg-white/90'
               } ${styles[isMatrix ? 'matrix' : 'bluepill']}`}
             >
               <span className="flex-1">{toast.message}</span>
