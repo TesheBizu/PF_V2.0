@@ -61,8 +61,10 @@ export default function About() {
               </a>
               {resumeUrl && (
                 <a
-                  href={resumeUrl}
+                  href="/api/settings/resume-download"
                   download
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
                 >
                   &gt; download_cv

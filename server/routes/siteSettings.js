@@ -83,7 +83,7 @@ router.put(
         resumeUrl = await uploadBuffer(
           files.resume[0].buffer,
           'portfolio/settings',
-          'auto',
+          'raw',
         )
       } else if (fields.removeResume === 'true') {
         resumeUrl = null
@@ -141,5 +141,32 @@ router.put(
     }
   },
 )
+
+router.get('/resume-download', async (req, res) => {
+  try {
+    const settings = await SiteSettings.findOne()
+    if (!settings?.resumeUrl) {
+      return res.status(404).json({ message: 'No resume available.' })
+    }
+
+    const filename = settings.name
+      ? `${settings.name.replace(/\s+/g, '_')}_CV.pdf`
+      : 'resume.pdf'
+
+    const response = await fetch(settings.resumeUrl)
+    if (!response.ok) {
+      return res.status(502).json({ message: 'Failed to fetch resume from storage.' })
+    }
+
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+    res.setHeader('Content-Type', 'application/pdf')
+
+    const buffer = Buffer.from(await response.arrayBuffer())
+    res.end(buffer)
+  } catch (err) {
+    console.error('Resume download error:', err.message)
+    return res.status(500).json({ message: 'Could not download resume.' })
+  }
+})
 
 export default router
