@@ -53,7 +53,7 @@ export default function Contact() {
 
   const labelColor = isMatrix ? 'text-matrix-green/70' : 'text-bluepill-accent-dark'
   const inputBase =
-    'w-full bg-transparent font-mono text-sm outline-none py-2 placeholder:text-current/30'
+    'w-full bg-transparent font-mono text-sm outline-none py-3 placeholder:text-current/30'
   const inputBorder = isMatrix
     ? 'border-0 border-b border-matrix-green/40 focus:border-matrix-green text-text-primary/90'
     : 'border-0 border-b border-bluepill-accent/40 focus:border-bluepill-accent text-bluepill-text'
@@ -188,7 +188,7 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className={`inline-flex items-center gap-2 rounded border px-5 py-2.5 font-mono text-sm transition-colors disabled:opacity-60 ${btnClass}`}
+                  className={`inline-flex items-center gap-2 rounded border px-5 py-3 font-mono text-sm transition-colors disabled:opacity-60 ${btnClass}`}
                 >
                   {submitting ? (
                     <>

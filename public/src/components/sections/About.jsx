@@ -62,7 +62,7 @@ export default function About() {
             <div className='mt-5 flex gap-4'>
               <a
                 href='#contact'
-                className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
+                className={`rounded border ${border} px-4 py-3 font-mono text-sm transition-colors ${hoverBg}`}
               >
                 &gt; contact_me
               </a>
@@ -73,7 +73,7 @@ export default function About() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => trackEvent('resume_download')}
-                  className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
+                  className={`rounded border ${border} px-4 py-3 font-mono text-sm transition-colors ${hoverBg}`}
                 >
                   &gt; download_cv
                 </a>

@@ -232,7 +232,7 @@ export default function TestimonialsAdmin() {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <h2 className={`font-mono text-lg ${headingCls}`}>Testimonials</h2>
-        <button onClick={openCreate} className={`flex items-center gap-2 rounded border px-3 py-1.5 font-mono text-sm transition-colors ${btnCls}`}>
+        <button onClick={openCreate} className={`flex items-center gap-2 rounded border px-3 py-2.5 min-h-[44px] font-mono text-sm transition-colors ${btnCls}`}>
           <Plus className="h-4 w-4" /> Add New Testimonial
         </button>
       </div>
@@ -270,8 +270,8 @@ export default function TestimonialsAdmin() {
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
-                <button onClick={() => openEdit(t)} className={iconCls} aria-label="Edit"><Pencil className="h-4 w-4" /></button>
-                <button onClick={() => setDeleteConfirm(t._id)} className={iconCls} aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
+                <button onClick={() => openEdit(t)} className={`p-2 ${iconCls}`} aria-label="Edit"><Pencil className="h-4 w-4" /></button>
+                <button onClick={() => setDeleteConfirm(t._id)} className={`p-2 ${iconCls}`} aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
               </div>
 
               {deleteConfirm === t._id && (
@@ -312,7 +312,7 @@ export default function TestimonialsAdmin() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>role *</label>
                   <input

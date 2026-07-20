@@ -210,7 +210,7 @@ export default function Projects() {
                             e.stopPropagation()
                             trackEvent('project_click', { projectId: project.id, projectTitle: project.title, linkType: 'open' })
                           }}
-                          className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 font-mono text-xs font-semibold transition-colors ${openBtnCls}`}
+                          className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-3 font-mono text-xs font-semibold transition-colors ${openBtnCls}`}
                         >
                           <ExternalLinkIcon className="h-3.5 w-3.5" />
                           OPEN
@@ -225,7 +225,7 @@ export default function Projects() {
                             e.stopPropagation()
                             trackEvent('project_click', { projectId: project.id, projectTitle: project.title, linkType: 'source' })
                           }}
-                          className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 font-mono text-xs transition-colors ${sourceBtnCls}`}
+                          className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-3 font-mono text-xs transition-colors ${sourceBtnCls}`}
                         >
                           <GitHubIcon className="h-3.5 w-3.5" />
                           SOURCE

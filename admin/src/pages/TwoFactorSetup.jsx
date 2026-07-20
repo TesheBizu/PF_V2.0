@@ -173,7 +173,7 @@ export default function TwoFactorSetup() {
             <button
               type="submit"
               disabled={disableLoading || disableCode.length !== 6}
-              className={`w-full rounded border px-4 py-2 font-mono text-sm transition-colors disabled:opacity-50 ${disableBtnCls}`}
+              className={`w-full rounded border px-4 py-2.5 font-mono text-sm transition-colors disabled:opacity-50 ${disableBtnCls}`}
             >
               {disableLoading ? '> disabling...' : '> disable 2fa'}
             </button>
@@ -193,7 +193,7 @@ export default function TwoFactorSetup() {
                 <p className={`mb-3 font-mono text-xs ${subtextCls}`}>
                   Scan this QR code with Google Authenticator, Authy, or any TOTP app:
                 </p>
-                <img src={qrCode} alt="2FA QR Code" className="mx-auto" />
+                <img src={qrCode} alt="2FA QR Code" className="mx-auto max-w-full h-auto" />
               </div>
 
               {secret && (
@@ -232,7 +232,7 @@ export default function TwoFactorSetup() {
                 <button
                   type="submit"
                   disabled={loading || code.length !== 6}
-                  className={`w-full rounded border px-4 py-2 font-mono text-sm transition-colors disabled:opacity-50 ${submitCls}`}
+                  className={`w-full rounded border px-4 py-2.5 font-mono text-sm transition-colors disabled:opacity-50 ${submitCls}`}
                 >
                   {loading ? '> confirming...' : '> confirm & enable 2fa'}
                 </button>

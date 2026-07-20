@@ -43,7 +43,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={label}
-                className={`transition-colors ${socialColor}`}
+                className={`p-2.5 transition-colors ${socialColor}`}
               >
                 <Icon />
               </a>

@@ -260,7 +260,7 @@ export default function ProjectsAdmin() {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <h2 className={`font-mono text-lg ${headingCls}`}>Projects</h2>
-        <button onClick={openCreate} className={`flex items-center gap-2 rounded border px-3 py-1.5 font-mono text-sm transition-colors ${btnCls}`}>
+        <button onClick={openCreate} className={`flex items-center gap-2 rounded border px-3 py-2.5 min-h-[44px] font-mono text-sm transition-colors ${btnCls}`}>
           <Plus className="h-4 w-4" /> Add New Project
         </button>
       </div>
@@ -305,8 +305,8 @@ export default function ProjectsAdmin() {
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
-                <button onClick={() => openEdit(p)} className={iconCls} aria-label="Edit"><Pencil className="h-4 w-4" /></button>
-                <button onClick={() => setDeleteConfirm(p._id)} className={iconCls} aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
+                <button onClick={() => openEdit(p)} className={`p-2 ${iconCls}`} aria-label="Edit"><Pencil className="h-4 w-4" /></button>
+                <button onClick={() => setDeleteConfirm(p._id)} className={`p-2 ${iconCls}`} aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
               </div>
 
               {deleteConfirm === p._id && (

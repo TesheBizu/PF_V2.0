@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
@@ -61,6 +61,8 @@ export default function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [logoutOpen, setLogoutOpen] = useState(false)
+  const logoutCancelRef = useRef(null)
 
   useEffect(() => {
     setMobileOpen(false)
@@ -100,10 +102,28 @@ export default function AdminLayout() {
     }
   }, [])
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => setLogoutOpen(true)
+
+  const confirmLogout = useCallback(() => {
+    setLogoutOpen(false)
     logout()
     navigate('/login', { replace: true })
-  }
+  }, [logout, navigate])
+
+  const cancelLogout = useCallback(() => {
+    setLogoutOpen(false)
+    logoutCancelRef.current?.focus()
+  }, [])
+
+  useEffect(() => {
+    if (!logoutOpen) return
+    const onKey = (e) => {
+      if (e.key === 'Escape') cancelLogout()
+    }
+    document.addEventListener('keydown', onKey)
+    logoutCancelRef.current?.focus()
+    return () => document.removeEventListener('keydown', onKey)
+  }, [logoutOpen, cancelLogout])
 
   const pageTitle = getPageTitle(location.pathname)
 
@@ -156,7 +176,7 @@ export default function AdminLayout() {
               to={to}
               title={collapsed ? label : undefined}
               className={({ isActive }) =>
-                `mb-0.5 flex items-center gap-3 rounded-r-sm px-3 py-2.5 font-mono text-sm transition-colors ${
+                `mb-0.5 flex items-center gap-3 rounded-r-sm px-3 py-3 font-mono text-sm transition-colors ${
                   isActive ? linkActiveCls : linkCls
                 }`
               }
@@ -174,9 +194,9 @@ export default function AdminLayout() {
 
         <div className={`border-t px-3 py-3 ${sidebarBorder}`}>
           <button
-            onClick={handleLogout}
+            onClick={handleLogoutClick}
             title={collapsed ? 'Logout' : undefined}
-            className={`flex w-full items-center gap-3 rounded-r-sm px-3 py-2 font-mono text-sm transition-colors ${logoutCls}`}
+            className={`flex w-full items-center gap-3 rounded-r-sm px-3 py-2.5 font-mono text-sm transition-colors ${logoutCls}`}
           >
             <LogOut className="h-4 w-4 shrink-0" />
             {!collapsed && <span>Logout</span>}
@@ -217,7 +237,7 @@ export default function AdminLayout() {
           </div>
           <button
             onClick={() => setMobileOpen(false)}
-            className={hamburgerCls}
+            className={`p-2 ${hamburgerCls}`}
             aria-label="Close sidebar"
           >
             <X className="h-5 w-5" />
@@ -230,7 +250,7 @@ export default function AdminLayout() {
               key={to}
               to={to}
               className={({ isActive }) =>
-                `mb-0.5 flex items-center gap-3 rounded-r-sm px-3 py-2.5 font-mono text-sm transition-colors ${
+                `mb-0.5 flex items-center gap-3 rounded-r-sm px-3 py-3 font-mono text-sm transition-colors ${
                   isActive ? linkActiveCls : linkCls
                 }`
               }
@@ -248,8 +268,8 @@ export default function AdminLayout() {
 
         <div className={`border-t px-5 py-3 ${sidebarBorder}`}>
           <button
-            onClick={handleLogout}
-            className={`flex w-full items-center gap-3 rounded-r-sm px-3 py-2 font-mono text-sm transition-colors ${logoutCls}`}
+            onClick={handleLogoutClick}
+            className={`flex w-full items-center gap-3 rounded-r-sm px-3 py-2.5 font-mono text-sm transition-colors ${logoutCls}`}
           >
             <LogOut className="h-4 w-4" />
             <span>Logout</span>
@@ -297,6 +317,45 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+
+      {logoutOpen && (
+        <div
+          className={`fixed inset-0 z-[100] flex items-center justify-center ${overlayBg}`}
+          onClick={cancelLogout}
+        >
+          <div
+            className={`mx-4 w-full max-w-sm rounded border p-6 text-center shadow-xl ${isMatrix ? 'border-matrix-green/20 bg-bg-void' : 'border-gray-200 bg-white'}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className={`mb-5 font-mono text-sm ${isMatrix ? 'text-text-primary' : 'text-gray-900'}`}>
+              Are you sure you want to log out?
+            </p>
+            <div className="flex justify-center gap-3">
+              <button
+                ref={logoutCancelRef}
+                onClick={cancelLogout}
+                className={`rounded border px-4 py-2.5 font-mono text-sm transition-colors ${
+                  isMatrix
+                    ? 'border-matrix-green/40 bg-matrix-green/10 text-matrix-green hover:bg-matrix-green/20'
+                    : 'border-bluepill-accent/40 bg-bluepill-accent/10 text-bluepill-accent hover:bg-bluepill-accent/20'
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmLogout}
+                className={`rounded border px-4 py-2.5 font-mono text-sm transition-colors ${
+                  isMatrix
+                    ? 'border-alert/40 bg-alert/10 text-alert hover:bg-alert/20'
+                    : 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100'
+                }`}
+              >
+                Log Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

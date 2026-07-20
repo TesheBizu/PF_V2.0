@@ -65,7 +65,7 @@ export default function Hero({ lines, isBooting }) {
                 : { opacity: { duration: 0.4 }, y: { duration: 1.8, repeat: Infinity, ease: 'easeInOut' } }
             }
             onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-            className={`absolute bottom-8 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1 cursor-pointer transition-colors ${scrollColor} ${scrollHover}`}
+            className={`absolute bottom-8 left-1/2 z-20 -translate-x-1/2 flex flex-col items-center gap-1 p-2 cursor-pointer transition-colors ${scrollColor} ${scrollHover}`}
             aria-label="Scroll to about section"
           >
             <span className="font-mono text-xs tracking-wider">&gt; scroll_</span>
@@ -120,7 +120,7 @@ function BootScreen({ lines, isMatrix }) {
               <span className={promptColor}>$</span> {line}
             </div>
           ))}
-          <div className={`mt-4 animate-pulse font-xs font-mono ${hintColor}`}>
+          <div className={`mt-4 animate-pulse text-xs font-mono ${hintColor}`}>
             Press any key or click to skip...
           </div>
         </div>
@@ -186,13 +186,13 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion, settings, loadin
         >
           <a
             href="#projects"
-            className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
+            className={`rounded border ${border} px-4 py-3 font-mono text-sm transition-colors ${hoverBg}`}
           >
             &gt; view_projects
           </a>
           <a
             href="#contact"
-            className={`rounded border ${border} px-4 py-2 font-mono text-sm transition-colors ${hoverBg}`}
+            className={`rounded border ${border} px-4 py-3 font-mono text-sm transition-colors ${hoverBg}`}
           >
             &gt; get_in_touch
           </a>
@@ -214,7 +214,7 @@ function ResolvedHero({ isMatrix, roleText, shouldReduceMotion, settings, loadin
                 target="_blank"
                 rel="noreferrer"
                 aria-label={label}
-                className={`transition-colors ${socialColor}`}
+                className={`p-2.5 transition-colors ${socialColor}`}
               >
                 <Icon />
               </a>

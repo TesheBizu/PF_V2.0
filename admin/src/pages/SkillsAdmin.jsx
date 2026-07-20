@@ -207,7 +207,7 @@ export default function SkillsAdmin() {
     <div className="mx-auto max-w-4xl">
       <div className="mb-6 flex items-center justify-between">
         <h2 className={`font-mono text-lg ${headingCls}`}>Skills</h2>
-        <button onClick={openCreate} className={`flex items-center gap-2 rounded border px-3 py-1.5 font-mono text-sm transition-colors ${btnCls}`}>
+        <button onClick={openCreate} className={`flex items-center gap-2 rounded border px-3 py-2.5 min-h-[44px] font-mono text-sm transition-colors ${btnCls}`}>
           <Plus className="h-4 w-4" /> Add New Skill
         </button>
       </div>
@@ -253,8 +253,8 @@ export default function SkillsAdmin() {
               </div>
 
               <div className="flex shrink-0 items-center gap-2">
-                <button onClick={() => openEdit(s)} className={iconCls} aria-label="Edit"><Pencil className="h-4 w-4" /></button>
-                <button onClick={() => setDeleteConfirm(s._id)} className={iconCls} aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
+                <button onClick={() => openEdit(s)} className={`p-2 ${iconCls}`} aria-label="Edit"><Pencil className="h-4 w-4" /></button>
+                <button onClick={() => setDeleteConfirm(s._id)} className={`p-2 ${iconCls}`} aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
               </div>
 
               {deleteConfirm === s._id && (
@@ -296,7 +296,7 @@ export default function SkillsAdmin() {
                 <p className={`mt-1 font-mono text-[10px] ${subtextCls}`}>icon auto-detected (devicon or concept icon)</p>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div>
                   <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>category *</label>
                   <select

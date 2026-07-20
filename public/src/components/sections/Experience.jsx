@@ -350,10 +350,10 @@ export default function Experience() {
                           setActiveId(null)
                         }
                       }}
-                      className={`absolute top-1/2 z-10 w-72 -translate-y-1/2 pl-14 md:pl-0 ${
+                      className={`absolute top-1/2 z-10 w-64 sm:w-72 -translate-y-1/2 pl-14 md:pl-0 ${
                         isLeft
-                          ? 'left-[48px] md:left-auto md:right-[calc(50%+36px)]'
-                          : 'left-[48px] md:left-[calc(50%+36px)]'
+                          ? 'left-8 sm:left-[48px] md:left-auto md:right-[calc(50%+36px)]'
+                          : 'left-8 sm:left-[48px] md:left-[calc(50%+36px)]'
                       }`}
                     >
                       <div

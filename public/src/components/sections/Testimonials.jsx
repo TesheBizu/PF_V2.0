@@ -260,7 +260,7 @@ export default function Testimonials() {
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Previous testimonial"
-                className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
+                className={`inline-flex h-11 w-11 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
               >
                 &lt;
               </button>
@@ -268,7 +268,7 @@ export default function Testimonials() {
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Next testimonial"
-                className={`inline-flex h-9 w-9 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
+                className={`inline-flex h-11 w-11 items-center justify-center rounded border font-mono text-lg leading-none ${arrowBtn}`}
               >
                 &gt;
               </button>
@@ -336,7 +336,7 @@ export default function Testimonials() {
                             target="_blank"
                             rel="noreferrer"
                             aria-label={`${t.name} on LinkedIn`}
-                            className={`ml-auto inline-flex rounded p-1.5 ${linkBtn}`}
+                            className={`ml-auto inline-flex rounded p-2.5 ${linkBtn}`}
                           >
                             <LinkedInIcon />
                           </a>

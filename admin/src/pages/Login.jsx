@@ -110,7 +110,7 @@ export default function Login() {
                 autoComplete="username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`w-full rounded border px-3 py-2 font-mono text-sm outline-none transition-colors ${inputCls}`}
+                className={`w-full rounded border px-3 py-2.5 font-mono text-sm outline-none transition-colors ${inputCls}`}
                 placeholder="admin@example.com"
               />
             </div>
@@ -127,7 +127,7 @@ export default function Login() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={`w-full rounded border px-3 py-2 pr-9 font-mono text-sm outline-none transition-colors ${inputCls}`}
+                  className={`w-full rounded border px-3 py-2.5 pr-9 font-mono text-sm outline-none transition-colors ${inputCls}`}
                   placeholder="••••••••"
                 />
                 <button
@@ -144,7 +144,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full rounded border px-4 py-2 font-mono text-sm transition-colors disabled:opacity-50 ${submitCls}`}
+              className={`w-full rounded border px-4 py-2.5 font-mono text-sm transition-colors disabled:opacity-50 ${submitCls}`}
             >
               {loading ? '> authenticating...' : '> login'}
             </button>
@@ -159,7 +159,7 @@ export default function Login() {
           <button
             type="button"
             onClick={handleGoogleLogin}
-            className={`flex w-full items-center justify-center gap-2 rounded border bg-transparent px-4 py-2 font-mono text-sm transition-colors ${googleBtnCls}`}
+            className={`flex w-full items-center justify-center gap-2 rounded border bg-transparent px-4 py-2.5 font-mono text-sm transition-colors ${googleBtnCls}`}
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />

@@ -120,11 +120,11 @@ export default function Toast({ message, type = 'success', onDismiss }) {
               style={{ textShadow }}
             >
               <span className={`shrink-0 select-none ${prefixColor}`}>{prefix}</span>
-              <span className="flex-1">{message}</span>
+              <span className="flex-1 break-words">{message}</span>
               <button
                 type="button"
                 onClick={dismiss}
-                className={`shrink-0 transition-opacity hover:opacity-100 ${xColor}`}
+                className={`shrink-0 p-2 transition-opacity hover:opacity-100 ${xColor}`}
                 aria-label="Dismiss notification"
               >
                 x
@@ -154,7 +154,7 @@ export default function Toast({ message, type = 'success', onDismiss }) {
             style={{ textShadow }}
           >
             <span className={`shrink-0 select-none ${prefixColor}`}>{prefix}</span>
-            <span className="flex-1">
+            <span className="flex-1 break-words">
               {phase === 'erase' && (
                 <span className={`cursor-blink ${cursorColor}`} aria-hidden="true">
                   ▌
@@ -170,7 +170,7 @@ export default function Toast({ message, type = 'success', onDismiss }) {
             <button
               type="button"
               onClick={dismiss}
-              className={`shrink-0 transition-opacity hover:opacity-100 ${xColor}`}
+              className={`shrink-0 p-2 transition-opacity hover:opacity-100 ${xColor}`}
               aria-label="Dismiss notification"
             >
               x

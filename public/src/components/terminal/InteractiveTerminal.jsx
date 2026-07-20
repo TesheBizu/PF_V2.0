@@ -248,7 +248,7 @@ export default function InteractiveTerminal() {
           type="button"
           onClick={() => setMinimized(false)}
           aria-label="Restore terminal"
-          className={`fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border px-4 py-2 font-mono text-xs shadow-lg transition-colors ${
+          className={`fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-full border px-4 py-3 font-mono text-xs shadow-lg transition-colors ${
             isMatrix
               ? 'border-matrix-green/50 bg-bg-surface text-matrix-green hover:bg-matrix-green/10'
               : 'border-bluepill-accent/50 bg-white/90 text-bluepill-accent-dark hover:bg-bluepill-accent/10'

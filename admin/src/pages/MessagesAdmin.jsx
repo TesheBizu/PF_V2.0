@@ -263,7 +263,7 @@ export default function MessagesAdmin() {
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
                     {savingId === msg._id && (
-                      <span className={`font-mono text-[10px] ${subtextCls}`}>saving...</span>
+                      <span className={`font-mono text-xs ${subtextCls}`}>saving...</span>
                     )}
                   </div>
                 </div>
@@ -277,7 +277,7 @@ export default function MessagesAdmin() {
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <a
                         href={getMailtoLink(msg)}
-                        className={`flex items-center gap-1.5 rounded border px-3 py-1.5 font-mono text-xs transition-colors ${btnCls}`}
+                        className={`flex items-center gap-1.5 rounded border px-3 py-2 font-mono text-xs transition-colors ${btnCls}`}
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
                         Reply via Email
@@ -286,7 +286,7 @@ export default function MessagesAdmin() {
                       {msg.status !== 'replied' && (
                         <button
                           onClick={() => updateStatus(msg._id, 'replied')}
-                          className={`flex items-center gap-1.5 rounded border px-3 py-1.5 font-mono text-xs transition-colors ${btnCls}`}
+                          className={`flex items-center gap-1.5 rounded border px-3 py-2 font-mono text-xs transition-colors ${btnCls}`}
                         >
                           <CheckCircle className="h-3.5 w-3.5" />
                           Mark Replied
@@ -296,7 +296,7 @@ export default function MessagesAdmin() {
                       {msg.status !== 'archived' && (
                         <button
                           onClick={() => updateStatus(msg._id, 'archived')}
-                          className={`flex items-center gap-1.5 rounded border px-3 py-1.5 font-mono text-xs transition-colors ${isMatrix ? 'border-matrix-dim/30 text-matrix-dim hover:text-matrix-green' : 'border-gray-300 text-gray-500 hover:text-bluepill-accent'}`}
+                          className={`flex items-center gap-1.5 rounded border px-3 py-2 font-mono text-xs transition-colors ${isMatrix ? 'border-matrix-dim/30 text-matrix-dim hover:text-matrix-green' : 'border-gray-300 text-gray-500 hover:text-bluepill-accent'}`}
                         >
                           <Archive className="h-3.5 w-3.5" />
                           Archive
@@ -305,7 +305,7 @@ export default function MessagesAdmin() {
 
                       <button
                         onClick={() => setDeleteConfirm(msg._id)}
-                        className={`flex items-center gap-1.5 rounded border px-3 py-1.5 font-mono text-xs transition-colors ${dangerCls}`}
+                        className={`flex items-center gap-1.5 rounded border px-3 py-2 font-mono text-xs transition-colors ${dangerCls}`}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         Delete

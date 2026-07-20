@@ -277,7 +277,7 @@ export default function Dashboard() {
                         </p>
                       </div>
                       <span
-                        className={`shrink-0 font-mono text-[10px] ${subtextCls}`}
+                        className={`shrink-0 font-mono text-xs ${subtextCls}`}
                       >
                         {formatDate(msg.createdAt)}
                       </span>

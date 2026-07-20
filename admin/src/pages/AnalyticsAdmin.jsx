@@ -91,7 +91,7 @@ export default function AnalyticsAdmin() {
       <button
         key={d}
         onClick={() => setDays(d)}
-        className={`rounded border px-3 py-1 font-mono text-xs transition-colors ${
+        className={`rounded border px-3 py-2 min-h-[36px] font-mono text-xs transition-colors ${
           active ? activeCls : base
         }`}
       >

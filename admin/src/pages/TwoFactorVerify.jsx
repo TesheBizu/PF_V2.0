@@ -95,7 +95,7 @@ export default function TwoFactorVerify() {
             <button
               type="submit"
               disabled={loading || code.length !== 6}
-              className={`w-full rounded border px-4 py-2 font-mono text-sm transition-colors disabled:opacity-50 ${submitCls}`}
+              className={`w-full rounded border px-4 py-2.5 font-mono text-sm transition-colors disabled:opacity-50 ${submitCls}`}
             >
               {loading ? '> verifying...' : '> verify'}
             </button>
@@ -104,7 +104,7 @@ export default function TwoFactorVerify() {
           <button
             type="button"
             onClick={() => navigate('/login', { replace: true })}
-            className={`mt-4 block w-full text-center font-mono text-xs transition-colors ${backCls}`}
+            className={`mt-4 block w-full py-2 text-center font-mono text-sm transition-colors ${backCls}`}
           >
             {'< back to login'}
           </button>

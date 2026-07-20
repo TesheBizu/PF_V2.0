@@ -359,7 +359,7 @@ export default function SiteSettingsAdmin() {
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className={`font-mono text-xs ${subtextCls}`}>Stats blocks</label>
-                <button type="button" onClick={addStat} className={`flex items-center gap-1 rounded border px-2 py-1 font-mono text-[11px] transition-colors ${btnCls}`}>
+                  <button type="button" onClick={addStat} className={`flex items-center gap-1 rounded border p-2 font-mono text-[11px] transition-colors ${btnCls}`}>
                   <Plus className="h-3 w-3" /> Add Stat
                 </button>
               </div>
@@ -385,7 +385,7 @@ export default function SiteSettingsAdmin() {
                       className={`w-14 rounded border px-2 py-1 font-mono text-xs outline-none transition-colors ${inputCls}`}
                       placeholder="+"
                     />
-                    <button type="button" onClick={() => removeStat(idx)} className="shrink-0 hover:text-alert">
+                    <button type="button" onClick={() => removeStat(idx)} className="shrink-0 p-2 hover:text-alert">
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
@@ -393,7 +393,7 @@ export default function SiteSettingsAdmin() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className={`mb-1 block font-mono text-xs ${subtextCls}`}>Profile Photo</label>
                 <input ref={photoRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhotoChange} className="hidden" />
@@ -514,7 +514,7 @@ export default function SiteSettingsAdmin() {
                     type="button"
                     disabled={s.key === 'hero'}
                     onClick={() => toggleSectionVisibility(idx)}
-                    className={`flex h-9 w-9 items-center justify-center rounded border transition-colors ${
+                    className={`flex h-11 w-11 items-center justify-center rounded border transition-colors ${
                       s.key === 'hero'
                         ? 'opacity-30 cursor-not-allowed'
                         : s.isVisible
@@ -572,7 +572,7 @@ export default function SiteSettingsAdmin() {
           <button
             type="submit"
             disabled={saving}
-            className={`flex items-center gap-2 rounded border px-6 py-2.5 font-mono text-sm transition-colors disabled:opacity-50 ${btnCls}`}
+            className={`flex items-center gap-2 rounded border px-6 py-3 font-mono text-sm transition-colors disabled:opacity-50 ${btnCls}`}
           >
             <Save className="h-4 w-4" />
             {saving ? '> saving...' : '> save settings'}
