@@ -6,6 +6,12 @@ const statSchema = new mongoose.Schema({
   suffix: { type: String, default: '' },
 }, { _id: false })
 
+const sectionSchema = new mongoose.Schema({
+  key: { type: String, required: true },
+  label: { type: String, required: true },
+  isVisible: { type: Boolean, default: true },
+}, { _id: false })
+
 const siteSettingsSchema = new mongoose.Schema({
   name: { type: String, required: true, default: '' },
   roles: [{ type: String, trim: true }],
@@ -23,6 +29,7 @@ const siteSettingsSchema = new mongoose.Schema({
   contactPhone: { type: String, default: '' },
   contactLocation: { type: String, default: '' },
   footerCopyrightName: { type: String, default: '' },
+  sections: [sectionSchema],
 }, { timestamps: true })
 
 const SiteSettings = mongoose.model('SiteSettings', siteSettingsSchema)

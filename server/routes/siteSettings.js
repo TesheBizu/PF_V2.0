@@ -29,6 +29,17 @@ const settingsUpload = multer({
   },
 })
 
+const DEFAULT_SECTIONS = [
+  { key: 'hero', label: 'Home', isVisible: true },
+  { key: 'about', label: 'About', isVisible: true },
+  { key: 'skills', label: 'Skills', isVisible: true },
+  { key: 'github', label: 'GitHub', isVisible: true },
+  { key: 'projects', label: 'Projects', isVisible: true },
+  { key: 'experience', label: 'Experience', isVisible: true },
+  { key: 'testimonials', label: 'Testimonials', isVisible: true },
+  { key: 'contact', label: 'Contact', isVisible: true },
+]
+
 const DEFAULTS = {
   name: '',
   roles: [],
@@ -42,12 +53,20 @@ const DEFAULTS = {
   contactPhone: '',
   contactLocation: '',
   footerCopyrightName: '',
+  sections: DEFAULT_SECTIONS,
 }
 
 router.get('/', async (_req, res) => {
   try {
-    const settings = await SiteSettings.findOne()
-    return res.json(settings || { ...DEFAULTS })
+    let settings = await SiteSettings.findOne()
+    if (!settings) {
+      return res.json({ ...DEFAULTS })
+    }
+    const data = settings.toObject()
+    if (!data.sections || data.sections.length === 0) {
+      data.sections = DEFAULT_SECTIONS
+    }
+    return res.json(data)
   } catch (err) {
     console.error('Fetch settings error:', err.message)
     return res.status(500).json({ message: 'Could not fetch settings.' })
@@ -124,6 +143,7 @@ router.put(
         contactPhone: fields.contactPhone || '',
         contactLocation: fields.contactLocation || '',
         footerCopyrightName: fields.footerCopyrightName || '',
+        sections: fields.sections ? JSON.parse(fields.sections) : undefined,
       }
 
       const settings = await SiteSettings.findOneAndUpdate({}, data, {

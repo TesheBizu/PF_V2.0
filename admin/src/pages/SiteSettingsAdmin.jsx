@@ -4,7 +4,7 @@ import { useToast } from '../context/ToastContext'
 import api from '../lib/api'
 import socket from '../lib/socket'
 import {
-  ChevronDown, ChevronRight, Plus, X, Upload, Save,
+  ChevronDown, ChevronRight, Plus, X, Upload, Save, Eye, EyeOff,
 } from 'lucide-react'
 
 const DEFAULT_SETTINGS = {
@@ -95,6 +95,18 @@ export default function SiteSettingsAdmin() {
     }))
   }
 
+  const updateSection = (idx, field, value) => {
+    const updated = settings.sections.map((s, i) =>
+      i === idx ? { ...s, [field]: value } : s,
+    )
+    updateField('sections', updated)
+  }
+
+  const toggleSectionVisibility = (idx) => {
+    const current = settings.sections[idx]
+    updateSection(idx, 'isVisible', !current.isVisible)
+  }
+
   const addRole = () => {
     const r = roleInput.trim()
     if (r && !settings.roles.includes(r)) {
@@ -180,6 +192,7 @@ export default function SiteSettingsAdmin() {
       fd.append('contactPhone', settings.contactPhone)
       fd.append('contactLocation', settings.contactLocation)
       fd.append('footerCopyrightName', settings.footerCopyrightName)
+      fd.append('sections', JSON.stringify(settings.sections))
 
       if (photoFile) {
         fd.append('profilePhoto', photoFile)
@@ -478,6 +491,45 @@ export default function SiteSettingsAdmin() {
                 placeholder="Your Name"
               />
             </div>
+          </div>
+        )}
+
+        {/* ============ NAVIGATION SECTIONS ============ */}
+        {sectionHeader('sections', 'Navigation Sections')}
+        {expandedSections.sections && (
+          <div className={`rounded border p-5 space-y-3 ${cardCls}`}>
+            {settings.sections?.length > 0 ? (
+              settings.sections.map((s, idx) => (
+                <div key={s.key} className="flex items-center gap-3">
+                  <span className={`w-24 shrink-0 font-mono text-[11px] uppercase tracking-wider ${subtextCls}`}>
+                    {s.key}
+                  </span>
+                  <input
+                    value={s.label}
+                    onChange={(e) => updateSection(idx, 'label', e.target.value)}
+                    className={`flex-1 rounded border px-3 py-2 font-mono text-sm outline-none transition-colors ${inputCls}`}
+                    placeholder="Section label"
+                  />
+                  <button
+                    type="button"
+                    disabled={s.key === 'hero'}
+                    onClick={() => toggleSectionVisibility(idx)}
+                    className={`flex h-9 w-9 items-center justify-center rounded border transition-colors ${
+                      s.key === 'hero'
+                        ? 'opacity-30 cursor-not-allowed'
+                        : s.isVisible
+                          ? 'border-matrix-green/50 text-matrix-green bg-matrix-green/10'
+                          : 'border-gray-400/30 text-gray-400 bg-transparent'
+                    }`}
+                    title={s.key === 'hero' ? 'Hero is always visible' : s.isVisible ? 'Visible' : 'Hidden'}
+                  >
+                    {s.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className={`font-mono text-xs ${subtextCls}`}>No sections configured.</p>
+            )}
           </div>
         )}
 

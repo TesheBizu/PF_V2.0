@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTheme } from './context/ThemeContext'
+import { useSettings } from './context/SettingsContext'
 import useBootSequence from './hooks/useBootSequence'
 import MatrixRain from './components/layout/MatrixRain'
 import Navbar from './components/layout/Navbar'
@@ -16,9 +17,17 @@ import Testimonials from './components/sections/Testimonials'
 import Contact from './components/sections/Contact'
 import Footer from './components/layout/Footer'
 
+function isVisible(sections, key) {
+  if (key === 'hero') return true
+  const entry = sections?.find((s) => s.key === key)
+  return entry ? entry.isVisible : true
+}
+
 function App() {
   const { theme } = useTheme()
+  const { settings } = useSettings()
   const { lines, isBooting, skipBoot } = useBootSequence()
+  const sections = settings?.sections
 
   useEffect(() => {
     if (!isBooting) return
@@ -64,13 +73,13 @@ function App() {
             element={
               <>
                 <Hero lines={lines} isBooting={isBooting} />
-                <About />
-                <Skills />
-                <GithubActivity />
-                <Projects />
-                <Experience />
-                <Testimonials />
-                <Contact />
+                {isVisible(sections, 'about') && <About />}
+                {isVisible(sections, 'skills') && <Skills />}
+                {isVisible(sections, 'github') && <GithubActivity />}
+                {isVisible(sections, 'projects') && <Projects />}
+                {isVisible(sections, 'experience') && <Experience />}
+                {isVisible(sections, 'testimonials') && <Testimonials />}
+                {isVisible(sections, 'contact') && <Contact />}
                 <Footer />
               </>
             }

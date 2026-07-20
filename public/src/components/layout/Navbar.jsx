@@ -1,21 +1,32 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { useTheme } from '../../context/ThemeContext'
+import { useSettings } from '../../context/SettingsContext'
 import ThemeToggle from '../ui/ThemeToggle'
 
-const NAV_ITEMS = [
-  { label: 'Home', href: '#home' },
-  { label: 'About', href: '#about' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Testimonials', href: '#testimonials' },
-  { label: 'Contact', href: '#contact' },
-]
+const KEY_TO_ID = {
+  hero: 'home',
+  about: 'about',
+  skills: 'skills',
+  github: 'github',
+  projects: 'projects',
+  experience: 'experience',
+  testimonials: 'testimonials',
+  contact: 'contact',
+}
 
-const SECTION_IDS = NAV_ITEMS.map((item) => item.href.slice(1))
+const FALLBACK_SECTIONS = [
+  { key: 'hero', label: 'Home', isVisible: true },
+  { key: 'about', label: 'About', isVisible: true },
+  { key: 'skills', label: 'Skills', isVisible: true },
+  { key: 'projects', label: 'Projects', isVisible: true },
+  { key: 'experience', label: 'Experience', isVisible: true },
+  { key: 'testimonials', label: 'Testimonials', isVisible: true },
+  { key: 'contact', label: 'Contact', isVisible: true },
+]
 
 export default function Navbar() {
   const { theme } = useTheme()
+  const { settings } = useSettings()
   const isMatrix = theme === 'matrix'
 
   const [scrolled, setScrolled] = useState(false)
@@ -23,6 +34,19 @@ export default function Navbar() {
   const [active, setActive] = useState('home')
 
   const headerRef = useRef(null)
+
+  const sections = settings?.sections?.length ? settings.sections : FALLBACK_SECTIONS
+  const navItems = useMemo(
+    () =>
+      sections
+        .filter((s) => s.isVisible || s.key === 'hero')
+        .map((s) => ({ label: s.label, href: `#${KEY_TO_ID[s.key] || s.key}` })),
+    [sections],
+  )
+  const sectionIds = useMemo(
+    () => navItems.map((item) => item.href.slice(1)),
+    [navItems],
+  )
 
   // Solid/blurred background once scrolled (or when the mobile menu is open)
   const solid = scrolled || open
@@ -36,10 +60,8 @@ export default function Navbar() {
 
   // Track the section currently in view to highlight its nav link
   useEffect(() => {
-    const sections = SECTION_IDS.map((id) => document.getElementById(id)).filter(
-      Boolean,
-    )
-    if (!sections.length) return
+    const els = sectionIds.map((id) => document.getElementById(id)).filter(Boolean)
+    if (!els.length) return
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -50,9 +72,9 @@ export default function Navbar() {
       { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
     )
 
-    sections.forEach((section) => observer.observe(section))
+    els.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
-  }, [])
+  }, [sectionIds])
 
   // Close the mobile menu on outside click
   useEffect(() => {
@@ -92,7 +114,7 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
         {/* desktop nav */}
         <nav className="hidden items-center gap-5 sm:flex">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const id = item.href.slice(1)
             return (
               <a
@@ -161,7 +183,7 @@ export default function Navbar() {
             <ThemeToggle />
           </div>
           <nav className="mx-auto flex max-w-6xl flex-col gap-1 px-6 py-3">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const id = item.href.slice(1)
               return (
                 <a
