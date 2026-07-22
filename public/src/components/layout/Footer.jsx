@@ -1,27 +1,27 @@
-import { useTheme } from '../../context/ThemeContext'
-import { useSettings } from '../../context/SettingsContext'
-import { GitHubIcon, LinkedInIcon, TwitterIcon } from '../ui/icons'
+import { useTheme } from "../../context/ThemeContext";
+import { useSettings } from "../../context/SettingsContext";
+import { GitHubIcon, LinkedInIcon, TwitterIcon } from "../ui/icons";
 
 const SOCIAL_CONFIG = [
-  { key: 'github', label: 'GitHub', Icon: GitHubIcon },
-  { key: 'linkedin', label: 'LinkedIn', Icon: LinkedInIcon },
-  { key: 'twitter', label: 'Twitter / X', Icon: TwitterIcon },
-]
+  { key: "github", label: "GitHub", Icon: GitHubIcon },
+  { key: "linkedin", label: "LinkedIn", Icon: LinkedInIcon },
+  { key: "twitter", label: "Twitter / X", Icon: TwitterIcon },
+];
 
 export default function Footer() {
-  const { theme } = useTheme()
-  const { settings } = useSettings()
-  const isMatrix = theme === 'matrix'
-  const year = new Date().getFullYear()
-  const socialLinks = settings?.socialLinks || {}
-  const copyrightName = settings?.footerCopyrightName || ''
+  const { theme } = useTheme();
+  const { settings } = useSettings();
+  const isMatrix = theme === "matrix";
+  const year = new Date().getFullYear();
+  const socialLinks = settings?.socialLinks || {};
+  const copyrightName = settings?.footerCopyrightName || "";
 
-  const muted = isMatrix ? 'text-text-primary/50' : 'text-bluepill-text/60'
+  const muted = isMatrix ? "text-text-primary/50" : "text-bluepill-text/60";
   const socialColor = isMatrix
-    ? 'text-text-primary/60 hover:text-matrix-green'
-    : 'text-bluepill-text/60 hover:text-bluepill-accent'
-  const glow = isMatrix ? 'via-matrix-green/40' : 'via-bluepill-accent/40'
-  const statusColor = isMatrix ? 'text-matrix-green' : 'text-bluepill-accent'
+    ? "text-text-primary/60 hover:text-matrix-green"
+    : "text-bluepill-text/60 hover:text-bluepill-accent";
+  const glow = isMatrix ? "via-matrix-green/40" : "via-bluepill-accent/40";
+  const statusColor = isMatrix ? "text-matrix-green" : "text-bluepill-accent";
 
   return (
     <footer className="relative px-6 py-8">
@@ -34,8 +34,8 @@ export default function Footer() {
         {/* social links — left on desktop */}
         <div className="order-2 flex items-center gap-4 sm:order-1">
           {SOCIAL_CONFIG.map(({ key, label, Icon }) => {
-            const href = socialLinks[key]
-            if (!href) return null
+            const href = socialLinks[key];
+            if (!href) return null;
             return (
               <a
                 key={key}
@@ -47,22 +47,18 @@ export default function Footer() {
               >
                 <Icon />
               </a>
-            )
+            );
           })}
         </div>
 
         {/* copyright + status — right on desktop */}
         <div className="order-3 flex flex-col items-center gap-1 font-mono text-xs sm:items-end">
-          <p className={muted}>© {year}{copyrightName ? ` ${copyrightName}.` : ''} All rights reserved.</p>
-          <p className={`flex items-center gap-2 ${muted}`}>
-            <span
-              className="status-dot inline-block h-2 w-2 rounded-full bg-matrix-green"
-              aria-hidden="true"
-            />
-            System status: <span className={statusColor}>Online</span>
+          <p className={muted}>
+            © {year}
+            {copyrightName ? ` ${copyrightName}.` : ""} All rights reserved.
           </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
